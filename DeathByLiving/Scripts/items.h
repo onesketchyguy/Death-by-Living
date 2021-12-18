@@ -3,7 +3,7 @@
 #define ITEMS_H
 
 #include <iostream>
-#include "./lib/json.hpp"
+#include "../lib/json.hpp"
 
 // for convenience
 using json = nlohmann::json;
