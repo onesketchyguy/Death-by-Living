@@ -40,7 +40,7 @@ struct Item
 	}
 
 	// Write JSON to file
-	const static void WriteToJson(std::vector<Item>& items, std::string fileName = "items.json")
+	const static void WriteToJson(std::vector<Item>& items, std::string fileName = "Data/items.json")
 	{
 		std::ofstream o(fileName);
 
@@ -61,7 +61,7 @@ struct Item
 	}
 
 	// Read a JSON file
-	const static void LoadJsonData(std::vector<Item>& grades, std::string fileName = "items.json")
+	const static void LoadJsonData(std::vector<Item>& grades, std::string fileName = "Data/items.json")
 	{
 		std::ifstream fs;
 		fs.open(fileName);
