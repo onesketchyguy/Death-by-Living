@@ -2,11 +2,11 @@
 #ifndef ITEMS_H
 #define ITEMS_H
 
+#include <iostream>
+#include "./lib/json.hpp"
+
 // for convenience
 using json = nlohmann::json;
-
-#include <iostream>
-#include "lib/json.hpp"
 
 #define ARMOR_ITEM_TYPE "Armor";
 #define WEAPON_ITEM_TYPE "Weapon";
