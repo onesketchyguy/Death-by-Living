@@ -58,11 +58,25 @@ public:
         }
     }
 
+    char GetCell(int x, int y, int layer) { if (matrix.size() <= layer && x >= 0 && x < width && y >= 0 && y < height) { return matrix[layer][y*width+x]; } }
 
     int Neighbors(int x, int y, int layer, char target)
     {
-        int n = 0, n1 = matrix[layer][(y-1)*width+x], n2 = matrix[layer][y*width+(x-1)], n4 = matrix[layer][y*width+(x+1)], n8 = matrix[layer][(y+1)*width+x];
-        if (target != ' ') { if (n8 == target) { n += 8; } if (n4 == target) { n += 4; } if (n2 == target) { n += 2; } if (n1 == target) { n += 1; } }
+        
+        int n = 0, n1 = target, n2 = target, n4 = target, n8 = target;
+        
+        if (y != 0 && y < height-1) { n1 = matrix[layer][(y-1)*width+x]; }
+        if (y != height-1 && y > 0) { n8 = matrix[layer][(y+1)*width+x]; }
+        if (x != 0 && x < width-1)  { n2 = matrix[layer][y*width+(x-1)]; }
+        if (x != width-1 && x > 0)  { n4 = matrix[layer][y*width+(x+1)]; }
+
+        if (target != ' ')
+        {
+            if (n8 == target || y == height-1) { n += 8; }
+            if (n4 == target || x == width-1)  { n += 4; }
+            if (n2 == target || x == 0)        { n += 2; }
+            if (n1 == target || y == 0)        { n += 1; }
+        }
         return n;
     }
 

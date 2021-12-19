@@ -166,14 +166,14 @@ public:
         char _t = map.matrix[layer][y*map.width+x];
         std::string l = std::to_string(layer), n = std::to_string(map.Neighbors(x, y, layer, _t));
         float xoff = var::room_width*var::tile;
-        DrawStringDecal({ xoff,0 }, l, olc::Pixel(255,255,255), { 1.0,1.0 });
-        DrawStringDecal({ xoff,8 }, n, olc::Pixel(255,255,255), { 1.0,1.0 });
+        DrawStringDecal({ xoff,0 }, " Layer:      "+l, olc::Pixel(255,255,255), { 1.0,1.0 });
+        DrawStringDecal({ xoff,8 }, " Cell Value: "+n, olc::Pixel(255,255,255), { 1.0,1.0 });
     }
 
     void Update()
     {
         int x = GetMouseX()/var::tile, y = GetMouseY()/var::tile;
-        Clear(olc::GREY);
+        Clear(olc::Pixel(16, 16, 24));
         
         // Input
         char new_select = GetCharacter();
