@@ -5,6 +5,8 @@
 #include "Scripts/main.h"
 #include "Scripts/settings.h"
 
+bool AUDIO_ENABLED = true;
+
 int main() 
 {
 	SettingsData settings;
@@ -13,7 +15,7 @@ int main()
 	int width = settings.windowWidth / settings.pixelSize;
 	int height = settings.windowHeight / settings.pixelSize;
 
-	// FIXME: Prevent sound from being used when settings disables it
+	AUDIO_ENABLED = settings.soundEnabled;
 
 	Game application;
 	if (application.Construct(width, height, settings.pixelSize, settings.pixelSize))
