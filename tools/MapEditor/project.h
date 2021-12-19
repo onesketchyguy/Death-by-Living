@@ -13,7 +13,8 @@ public:
     char selected = '.';
     int layer = 0;
     std::string _tile = "gravel";
-    Map map = Map(var::tile, var::tile);
+    std::string map_dir = "test.map";
+    Map map = Map(var::room_width, var::room_height);
     olc::Renderable tileset;
 
 
@@ -22,7 +23,7 @@ public:
 
     char GetCharacter()
     {
-        char c;
+        char c = '~';
         if (!ShiftKey())
         {
             if (GetKey(olc::Key::A).bPressed) { c = 'a'; }
@@ -136,8 +137,7 @@ public:
             for (int x = 0; x < var::room_width; x++)
             {
                 float X = x*var::tile, Y = y*var::tile;
-                std::string tile = "";
-                tile += map.matrix[layer][y*map.width+x];
+                std::string tile = ""; tile += map.matrix[layer][y*map.width+x];
                 DrawStringDecal({ X,Y }, tile, olc::Pixel(255,255,255), { 2.0,2.0 });
             }
         }
@@ -164,8 +164,7 @@ public:
     {
         int x = GetMouseX()/var::tile, y = GetMouseY()/var::tile;
         char _t = map.matrix[layer][y*map.width+x];
-        std::string l = std::to_string(layer);
-        std::string n = std::to_string(map.Neighbors(x, y, layer, _t));
+        std::string l = std::to_string(layer), n = std::to_string(map.Neighbors(x, y, layer, _t));
         float xoff = var::room_width*var::tile;
         DrawStringDecal({ xoff,0 }, l, olc::Pixel(255,255,255), { 1.0,1.0 });
         DrawStringDecal({ xoff,8 }, n, olc::Pixel(255,255,255), { 1.0,1.0 });
@@ -174,29 +173,20 @@ public:
     void Update()
     {
         int x = GetMouseX()/var::tile, y = GetMouseY()/var::tile;
-
         Clear(olc::GREY);
         
         // Input
         char new_select = GetCharacter();
-        
-        if (new_select) { selected = new_select; }
+        if (new_select != '~') { selected = new_select; }
         if (GetKey(olc::TAB).bPressed) { mode = !mode; }
         if (GetKey(olc::NP_ADD).bPressed) { if (layer < map.layers-1) layer++; }
         if (GetKey(olc::NP_SUB).bPressed) { if (layer > 0) layer--; }
         if (GetMouse(0).bHeld) { map.SetCell(selected, x, y, layer); }
-        
-        if (GetKey(olc::CTRL).bHeld)
-        {
-            if (GetKey(olc::W).bPressed) { map.SaveData("test.map"); }
-            if (GetKey(olc::R).bPressed) { map.LoadData("test.map"); }
-        }
+        if (GetKey(olc::CTRL).bHeld) { if (GetKey(olc::W).bPressed) { map.SaveData(map_dir); } if (GetKey(olc::R).bPressed) { map.LoadData(map_dir); } }
 
         // Draw
-        if (mode) { DrawTiles(); }
-        else { DrawChars(); }
-        DrawGrid();
-        DrawHUD();
+        if (mode) { DrawTiles(); } else { DrawChars(); }
+        DrawGrid(); DrawHUD();
     }
 
     bool OnUserCreate() override
@@ -208,9 +198,7 @@ public:
 
     bool OnUserUpdate(float fElapsedTime) override
     {
-        // Stuff
         Update();
-        // End Frame
         return true;
     }
 };
