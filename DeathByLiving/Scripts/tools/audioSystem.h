@@ -13,6 +13,21 @@ public:
 public:
 	void LoadClip(const char* clipLocation);
 	void PlayClip(const char* clipLocation);
+
+public: // TEST CASE STUFF
+	void LoadTestCases() 
+	{
+		const char* clipA = "Data/SampleA.wav";
+
+		LoadClip(clipA);
+	}
+
+	void RunTestCase() 
+	{
+		const char* clipA = "Data/SampleA.wav";
+
+		PlayClip(clipA);
+	}
 };
 
 

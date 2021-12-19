@@ -16,37 +16,21 @@ public:
 
 	AudioSystem audio;
 
-	const char* clipA = "Data/SampleA.wav";
-	const char* clipB = "Data/SampleB.wav";
-	const char* clipC = "Data/SampleC.wav";
-
 public:
 	bool OnUserCreate() override
 	{
 		// Called once at the start, so create things here
 
-		audio.LoadClip(clipA);
-		audio.LoadClip(clipB);
-		audio.LoadClip(clipC);
+		audio.LoadTestCases();
 
 		return true;
 	}
 
 	bool OnUserUpdate(float fElapsedTime) override
 	{
-		if (GetKey(olc::K1).bPressed) 
+		if (GetKey(olc::TILDE).bPressed) 
 		{
-			audio.PlayClip(clipA);
-		}
-
-		if (GetKey(olc::K2).bPressed)
-		{
-			audio.PlayClip(clipB);
-		}
-
-		if (GetKey(olc::K3).bPressed)
-		{
-			audio.PlayClip(clipC);
+			audio.RunTestCase();
 		}
 
 		// Called once per frame, draws random coloured pixels
