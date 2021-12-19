@@ -196,6 +196,9 @@ public:
 	void SetDrawing(bool value) { draw = value; }
 	bool GetDrawing() { return draw; }
 
+	Item GetArmor() { return equippedArmor; }
+	Item GetWeapon() { return equippedWeapon; }
+
 	void Update(olc::PixelGameEngine* pge)
 	{
 		if (draw == false) return;
