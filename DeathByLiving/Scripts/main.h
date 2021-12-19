@@ -4,22 +4,27 @@ extern bool AUDIO_ENABLED;
 
 #include "../lib/olcPixelGameEngine.h"
 #include "tools/audioSystem.h"
+#include "inventorySystem.h"
 
 class Game : public olc::PixelGameEngine
 {
+private: // Global variables
+	AudioSystem audio;
+	Inventory inv;
+
 public:
 	Game()
 	{
 		// Name your application
 		sAppName = "Example";
-	}
-
-	AudioSystem audio;
+	}	
 
 public:
 	bool OnUserCreate() override
 	{
 		// Called once at the start, so create things here
+
+		srand(time(0));
 
 		audio.LoadTestCases();
 
@@ -28,15 +33,22 @@ public:
 
 	bool OnUserUpdate(float fElapsedTime) override
 	{
-		if (GetKey(olc::TILDE).bPressed) 
+		if (GetKey(olc::Key::CTRL).bHeld && GetKey(olc::Key::TILDE).bPressed) audio.RunTestCase();
+		if (GetKey(olc::Key::CTRL).bHeld && GetKey(olc::Key::I).bPressed) 
 		{
-			audio.RunTestCase();
+			if (inv.AddItem(Item::GetRandomItem())) 
+			{
+				std::cout << "Added item." << std::endl;
+			}
+			else
+			{
+				std::cout << "Failed to add item" << std::endl;
+			}
 		}
+		else if (GetKey(olc::Key::I).bPressed) inv.SetDrawing(!inv.GetDrawing());
 
-		// Called once per frame, draws random coloured pixels
-		for (int x = 0; x < ScreenWidth(); x++)
-			for (int y = 0; y < ScreenHeight(); y++)
-				Draw(x, y, olc::Pixel(rand() % 256, rand() % 256, rand() % 256));
+		inv.Update(this);
+
 		return true;
 	}
 };
