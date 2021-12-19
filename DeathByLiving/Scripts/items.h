@@ -3,6 +3,7 @@
 #define ITEMS_H
 
 #include <iostream>
+#include <fstream>
 #include "../lib/json.hpp"
 
 // for convenience
@@ -100,13 +101,13 @@ struct Item
 
 		std::cout << "Items loaded." << std::endl;
 	}
+
+	const static Item GetRandomItem();
 };
 
 ///  FIXME: This funciton is for test purposes ONLY!
-Item GetRandomItem() 
+const Item Item::GetRandomItem()
 {
-	srand(time(0));
-
 	Item i;
 	
 	const int NAMES_LENGTH = 5;
@@ -151,7 +152,7 @@ void RunItemsTestCase()
 
 	std::cout << "- Generating new item" << std::endl;
 	const char* itemType = WEAPON_ITEM_TYPE;
-	Item i = GetRandomItem();
+	Item i = Item::GetRandomItem();
 
 	std::cout << "- Saving new item to list" << std::endl;
 	items.push_back(i);
