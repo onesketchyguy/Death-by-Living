@@ -27,12 +27,15 @@ public:
 		srand(time(0));
 
 		audio.LoadTestCases();
+		inv.SetPosition(ScreenWidth(), ScreenHeight());
 
 		return true;
 	}
 
 	bool OnUserUpdate(float fElapsedTime) override
 	{
+		Clear(olc::BLANK);
+
 		if (GetKey(olc::Key::CTRL).bHeld && GetKey(olc::Key::TILDE).bPressed) audio.RunTestCase();
 		if (GetKey(olc::Key::CTRL).bHeld && GetKey(olc::Key::I).bPressed) 
 		{
@@ -45,7 +48,7 @@ public:
 				std::cout << "Failed to add item" << std::endl;
 			}
 		}
-		else if (GetKey(olc::Key::I).bPressed) inv.SetDrawing(!inv.GetDrawing());
+		else if (GetKey(olc::Key::I).bPressed) inv.SetDrawing(!inv.GetDrawing(), this);
 
 		inv.Update(this);
 

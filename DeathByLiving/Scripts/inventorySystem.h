@@ -35,6 +35,7 @@ private:
 	Item holdingItem = NULL_ITEM;
 
 	bool draw = false;
+	uint32_t drawLayer = 0;
 
 	void DrawHoldingItem(olc::PixelGameEngine* pge)
 	{
@@ -193,16 +194,20 @@ public:
 		}
 	}
 
-	void SetDrawing(bool value) { draw = value; }
+	void SetDrawing(bool value, olc::PixelGameEngine* pge) { draw = value; pge->EnableLayer(drawLayer, value); }
 	bool GetDrawing() { return draw; }
 
 	Item GetArmor() { return equippedArmor; }
-	Item GetWeapon() { return equippedWeapon; }
+	Item GetWeapon() { return equippedWeapon; }	
+
+	void SetPosition(int x, int y)
+	{
+		windowPosition.x = x - ((SLOT_SIDE_PADDING * 2) + CELL_SIZE * (HORIZONTAL_CELLS + 1.25f));
+		windowPosition.y = y - (SLOT_SIDE_PADDING + SLOT_TOP_OFFSET + (CELL_SIZE * VERTICAL_CELLS));
+	}
 
 	void Update(olc::PixelGameEngine* pge)
 	{
-		if (draw == false) return;
-
 		if (inventoryUI == nullptr)
 		{
 			inventoryUI = new olc::Renderable();
@@ -213,9 +218,11 @@ public:
 				items.push_back(NULL_ITEM);
 			}
 
-			windowPosition.x = (pge->ScreenWidth() >> 1) - (HORIZONTAL_CELLS * CELL_SIZE)/2;
-			windowPosition.y = (pge->ScreenHeight() >> 1) - (VERTICAL_CELLS * CELL_SIZE)/2;
-		}
+			drawLayer = pge->CreateLayer();
+		}		
+
+
+		pge->SetDrawTarget(drawLayer);
 
 		const float RIGHT = static_cast<float>((SLOT_SIDE_PADDING * 2) + CELL_SIZE * (HORIZONTAL_CELLS + 1.25f));
 		const float BOTTOM = static_cast<float>(SLOT_SIDE_PADDING + SLOT_TOP_OFFSET + (CELL_SIZE * VERTICAL_CELLS));
@@ -271,13 +278,18 @@ public:
 		{
 			toolTipX += 1;
 
-			pge->DrawStringDecal(olc::vf2d{-0.1f, 0.1f} + windowPosition + olc::vi2d{ SLOT_SIDE_PADDING + (toolTipX * CELL_SIZE),
-				SLOT_TOP_OFFSET + (toolTipY * CELL_SIZE) }, tooltip, olc::BLACK, olc::vf2d{ 0.5f, 0.5f });
-			pge->DrawStringDecal(windowPosition + olc::vi2d{ SLOT_SIDE_PADDING + (toolTipX * CELL_SIZE),
-				SLOT_TOP_OFFSET + (toolTipY * CELL_SIZE) }, tooltip, olc::WHITE, olc::vf2d{ 0.5f, 0.5f });
+			olc::vf2d drawPos = windowPosition + olc::vi2d{ 
+				SLOT_SIDE_PADDING + (toolTipX * CELL_SIZE), 
+				SLOT_TOP_OFFSET + (toolTipY * CELL_SIZE) };
+
+			if (drawPos.x + (CELL_SIZE * 2) >= pge->ScreenWidth()) drawPos.x = windowPosition.x + SLOT_SIDE_PADDING;
+
+			pge->DrawStringDecal(olc::vf2d{-0.05f, 0.05f} + drawPos, tooltip, olc::BLACK, olc::vf2d{ 0.5f, 0.5f });
+			pge->DrawStringDecal(drawPos, tooltip, olc::WHITE, olc::vf2d{ 0.5f, 0.5f });
 		}
 
 		delete[] positions;
+		pge->SetDrawTarget(nullptr);
 	}
 };
 
