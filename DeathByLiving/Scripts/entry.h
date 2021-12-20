@@ -14,6 +14,8 @@ public:
     //
     //
 
+    Entry(float X, float Y, float f=1.0, std::string t="", int mc=16) { x=X; y=Y; font=f; text=t; max_chars=mc; if (t != "") cursor = text.length(); }
+
     int Size() { return text.length(); }
     float Width() { return ( float(text.length()) * (font * 4.0) ); }
     //
@@ -27,11 +29,14 @@ public:
 
     void Update(std::string cmd)
     {
-        if      (cmd.size() == 1) { AddChar(cmd); }
-        else if (cmd == "DEL")    {    DelChar(); }
-        else if (cmd == "BACK")   {   BackChar(); }
-        else if (cmd == "LEFT")   {    CursorM(); }
-        else if (cmd == "RIGHT")  {    CursorP(); }
+        if (cmd != "null")
+        {
+            if (cmd.length() == 1)   { AddChar(cmd); }
+            else if (cmd == "DEL")   {    DelChar(); }
+            else if (cmd == "BACK")  {   BackChar(); }
+            else if (cmd == "LEFT")  {    CursorM(); }
+            else if (cmd == "RIGHT") {    CursorP(); }
+        }
     }
 
 };
