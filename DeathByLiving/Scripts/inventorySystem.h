@@ -27,19 +27,18 @@ private:
 
 	olc::vi2d windowPosition = olc::vi2d{0,0};
 
-	const Item NULL_ITEM{"NULLITEM", 0, 0, USELESS_TYPE};
 	std::vector<Item> items;
 	Item equippedArmor{ "NULLITEM", 0, 0, ARMOR_TYPE };
 	Item equippedWeapon{ "NULLITEM", 0, 0, WEAPON_TYPE };
 
-	Item holdingItem = NULL_ITEM;
+	Item holdingItem = Item::NULL_ITEM;
 
 	bool draw = false;
 	uint32_t drawLayer = 0;
 
 	void DrawHoldingItem(olc::PixelGameEngine* pge)
 	{
-		if (holdingItem.name == NULL_ITEM.name) return;
+		if (holdingItem.name == Item::NULL_ITEM.name) return;
 
 		olc::vi2d pos = pge->GetMousePos();
 
@@ -81,13 +80,13 @@ private:
 		}
 
 
-		if (item.name != NULL_ITEM.name)
+		if (item.name != Item::NULL_ITEM.name)
 		{
 			std::string itemInfo;
 
 			if (item.type == ARMOR_TYPE)
 			{
-				itemInfo = item.name + " armor\n" +
+				itemInfo = item.name + "\n" +
 					std::to_string(item.keyValue) + "def\n" +
 					std::to_string(item.durValue) + "dur\n";
 
@@ -116,10 +115,10 @@ private:
 			{
 				if (pge->GetMouse(0).bHeld)
 				{
-					if (holdingItem.name == NULL_ITEM.name)
+					if (holdingItem.name == Item::NULL_ITEM.name)
 					{
 						holdingItem = item;
-						item.name = NULL_ITEM.name;
+						item = Item::NULL_ITEM;
 					}
 				}
 				else 
@@ -132,11 +131,11 @@ private:
 		{
 			if (pge->GetMouse(0).bReleased)
 			{
-				if (holdingItem.name != NULL_ITEM.name && holdingItem.type != ARMOR_TYPE && holdingItem.type != WEAPON_TYPE &&
+				if (holdingItem.name != Item::NULL_ITEM.name && holdingItem.type != ARMOR_TYPE && holdingItem.type != WEAPON_TYPE &&
 					item.type != ARMOR_TYPE && item.type != WEAPON_TYPE)
 				{
 					item = holdingItem;
-					holdingItem = NULL_ITEM;
+					holdingItem = Item::NULL_ITEM;
 				}
 			}
 		}
@@ -149,7 +148,7 @@ public:
 		int i = 0;
 		for (auto& item : items)
 		{
-			if (item.name == NULL_ITEM.name) return i;
+			if (item.name == Item::NULL_ITEM.name) return i;
 
 			i++;
 		}
@@ -161,7 +160,7 @@ public:
 	{
 		if (newItem.type == ARMOR_TYPE)
 		{
-			if (equippedArmor.name == NULL_ITEM.name)
+			if (equippedArmor.name == Item::NULL_ITEM.name)
 			{
 				equippedArmor = newItem;
 			}
@@ -171,7 +170,7 @@ public:
 
 		if (newItem.type == WEAPON_TYPE)
 		{
-			if (equippedWeapon.name == NULL_ITEM.name)
+			if (equippedWeapon.name == Item::NULL_ITEM.name)
 			{
 				equippedWeapon = newItem;
 			}
@@ -197,8 +196,8 @@ public:
 	void SetDrawing(bool value, olc::PixelGameEngine* pge) { draw = value; pge->EnableLayer(drawLayer, value); }
 	bool GetDrawing() { return draw; }
 
-	Item GetArmor() { return equippedArmor; }
-	Item GetWeapon() { return equippedWeapon; }	
+	Item& GetArmor() { return equippedArmor; }
+	Item& GetWeapon() { return equippedWeapon; }	
 
 	void SetPosition(int x, int y)
 	{
@@ -215,11 +214,14 @@ public:
 			
 			for (size_t i = 0; i < HORIZONTAL_CELLS * VERTICAL_CELLS; i++)
 			{
-				items.push_back(NULL_ITEM);
+				items.push_back(Item::NULL_ITEM);
 			}
 
 			drawLayer = pge->CreateLayer();
-		}		
+		}
+
+		if (equippedArmor.type != ARMOR_TYPE) equippedArmor.type = ARMOR_TYPE;
+		if (equippedWeapon.type != WEAPON_TYPE) equippedWeapon.type = WEAPON_TYPE;
 
 
 		pge->SetDrawTarget(drawLayer);
@@ -236,13 +238,14 @@ public:
 		pge->DrawStringDecal(windowPosition + olc::vf2d{ 8, 4 }, "INVENTORY", olc::WHITE, olc::vf2d{0.5,0.5});
 
 		std::string tooltip = "";
+		std::string startToolTip = "";
 		int toolTipX = 0, toolTipY = 0;
 
 		for (int x = 0; x < HORIZONTAL_CELLS; x++)
-		{
+		{			
 			for (int y = 0; y < VERTICAL_CELLS; y++)
 			{
-				std::string startToolTip = tooltip;
+				startToolTip = tooltip;
 
 				olc::vi2d pos = windowPosition + olc::vi2d{ SLOT_SIDE_PADDING + (x * CELL_SIZE), SLOT_TOP_OFFSET + (y * CELL_SIZE) };
 				Item* item = &items[y * HORIZONTAL_CELLS + x];
@@ -253,9 +256,13 @@ public:
 				{
 					toolTipX = x;
 					toolTipY = y;
+
+					startToolTip = tooltip;
 				}
-			}
+			}			
 		}
+
+		startToolTip = tooltip;
 
 		DrawSlot(windowPosition + olc::vf2d{ (HORIZONTAL_CELLS + 0.25f) * CELL_SIZE, 
 			static_cast<float>(SLOT_TOP_OFFSET)}, equippedArmor, pge, tooltip);
@@ -264,14 +271,20 @@ public:
 
 		DrawHoldingItem(pge);
 
-		// If we tried to release the item, but it's still in our hands
-		if (pge->GetMouse(0).bReleased)
+		if (holdingItem.name != Item::NULL_ITEM.name) 
 		{
-			if (holdingItem.name != NULL_ITEM.name)
+			// If we tried to release the item, but it's still in our hands
+			if (pge->GetMouse(0).bReleased)
 			{
 				AddItem(holdingItem);
-				holdingItem = NULL_ITEM;
+				holdingItem = Item::NULL_ITEM;
 			}
+		}
+
+		if (startToolTip != tooltip)
+		{
+			toolTipX = -1;
+			toolTipY = 0;
 		}
 
 		if (tooltip.empty() == false) 

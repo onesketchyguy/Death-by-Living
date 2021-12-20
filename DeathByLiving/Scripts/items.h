@@ -35,6 +35,8 @@ struct Item
 		this->type = type;
 	}
 
+	const static Item NULL_ITEM;
+
 	std::string ToString() 
 	{
 		return name + " " + std::to_string(keyValue) + " " + std::to_string(durValue) + " " + type;
@@ -105,18 +107,31 @@ struct Item
 	const static Item GetRandomItem();
 };
 
+const Item Item::NULL_ITEM{ "NULLITEM", 0, 0, "NULL"};
+
 ///  FIXME: This funciton is for test purposes ONLY!
 const Item Item::GetRandomItem()
 {
 	Item i;
 	
-	const int NAMES_LENGTH = 5;
+	int NAMES_LENGTH = 5;
 	std::string* names = new std::string[NAMES_LENGTH]
 	{
-		"stick", "sword", "rock", "lief", "leather"
+		"stick", "sword", "rock", "lief", "thing"
 	};
 
-	i.name = names[rand() % NAMES_LENGTH];
+	const int QUALITY_LEVELS = 7;
+	std::string* qualityNames = new std::string[QUALITY_LEVELS]
+	{
+		"Horrible ", "Worn ", "", "Nice ", "Great ", "Fantastic ", "Other worldly "
+	};
+
+	int quality = rand() % QUALITY_LEVELS;
+	int level = rand() % NAMES_LENGTH;
+	i.name = names[level];
+
+	i.keyValue = rand() % 10;
+	i.durValue = rand() % 10;
 
 	int t = rand() % ITEM_TYPES_LENGTH;
 
@@ -124,9 +139,31 @@ const Item Item::GetRandomItem()
 	{
 	case 0:
 		i.type = ARMOR_ITEM_TYPE;
+		NAMES_LENGTH = 5;
+		names = new std::string[NAMES_LENGTH]
+		{
+			"Cloth", "Leather", "Iron", "Steel", "Mythril"
+		};
+
+		level = rand() % NAMES_LENGTH;
+		i.name = qualityNames[quality] + names[level] + " armor";
+		i.durValue = level + rand() % (1 + quality * 3);
+		i.keyValue = level + rand() % (1 + quality * 2);
+
 		break;
 	case 1:
 		i.type = WEAPON_ITEM_TYPE;
+		NAMES_LENGTH = 6;
+		names = new std::string[NAMES_LENGTH]
+		{
+			"Rock", "Wooden sword", "Bronze sword", "Iron sword", "Steel sword", "Mythril sword"
+		};
+
+		level = rand() % NAMES_LENGTH;
+		i.name = qualityNames[quality] + names[level];
+		i.durValue = (level * 2) + rand() % (1 + quality * 3);
+		i.keyValue = level + rand() % (1 + quality * 2);
+
 		break;
 	case 2:
 		i.type = HEALING_ITEM_TYPE;
@@ -136,8 +173,8 @@ const Item Item::GetRandomItem()
 		break;
 	}
 
-	i.keyValue = rand() % 10;
-	i.durValue = rand() % 10;
+	delete[] names;
+	delete[] qualityNames;
 
 	return i;
 }
