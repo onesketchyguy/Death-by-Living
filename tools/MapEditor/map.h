@@ -22,7 +22,7 @@ public:
     // Cell
     void SetCell(char tile, int x, int y, int layer) { if (x < width && y < height) { matrix[layer][y*width+x] = tile; } }
     char GetCell(int x, int y, int layer) { if (matrix.size() <= layer && x >= 0 && x < width && y >= 0 && y < height) { return matrix[layer][y*width+x]; } }
-    bool GetCollision(int x, int y, int layer) { if (matrix[layer][y*width+x] == '#') { return true; } return false; }
+    bool GetCollision(int x, int y, int layer) { return (matrix[layer][y*width+x] == '#'); }
 
     int Neighbors(int x, int y, int layer, char target)
     {
