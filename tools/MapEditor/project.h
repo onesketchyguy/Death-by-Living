@@ -12,11 +12,12 @@ public:
     bool tile_mode = true;
     char selected = ' ';
     int layer = 0;
-    int room_x = 0;
-    int room_y = 0;
+    int room_x = 8;
+    int room_y = 8;
     std::string _tile = "gravel";
     Entry map_dir = Entry(var::room_width*var::tile, 33, 1.0, "test.map", 32);
     Map map = Map(var::room_width, var::room_height, 3);
+    World world = World(16, 16);
     olc::Renderable tileset;
     olc::Pixel color0 = olc::Pixel(128, 128, 128, 64);
     olc::Pixel color1 = olc::Pixel(4, 4, 6);
@@ -247,7 +248,7 @@ public:
             for (int x = 0; x < var::world_width; x++)
             {
                 Draw(x+X, y+Y, color3);
-                if (x == room_x || y == room_y) Draw(x+X, y+Y, color2);
+                if (world.matrix[y*world.width+x] == "0000") Draw(x+X, y+Y, color1); else { Draw(x+X, y+Y, color3); }
                 if (x == room_x && y == room_y) Draw(x+X, y+Y, color5);
             }
         }
@@ -291,10 +292,13 @@ public:
         if (append_layer.IsColliding(X, Y) && GetMouse(0).bPressed) { map.AppendLayer(); }
         if (insert_layer.IsColliding(X, Y) && GetMouse(0).bPressed) { map.InsertLayer(layer); }
         if (delete_layer.IsColliding(X, Y) && GetMouse(0).bPressed) { map.DeleteLayer(layer); }
-        if (move_up.IsColliding(X, Y) && GetMouse(0).bPressed) { if (room_y > 0) room_y--; }
-        if (move_down.IsColliding(X, Y) && GetMouse(0).bPressed) { if (room_y < var::world_height-1) room_y++; }
-        if (move_left.IsColliding(X, Y) && GetMouse(0).bPressed) { if (room_x > 0) room_x--; }
-        if (move_right.IsColliding(X, Y) && GetMouse(0).bPressed) { if (room_x < var::world_width-1) room_x++; }
+        bool load_map = false;
+        if (move_up.IsColliding(X, Y) && GetMouse(0).bPressed)    { if (room_y > 0)                   { room_y--; load_map = true; } }
+        if (move_down.IsColliding(X, Y) && GetMouse(0).bPressed)  { if (room_y < var::world_height-1) { room_y++; load_map = true; } }
+        if (move_left.IsColliding(X, Y) && GetMouse(0).bPressed)  { if (room_x > 0)                   { room_x--; load_map = true; } }
+        if (move_right.IsColliding(X, Y) && GetMouse(0).bPressed) { if (room_x < var::world_width-1)  { room_x++; load_map = true; } }
+        
+        if (load_map) { std::string _dir = world.matrix[room_y*world.width+room_x]+".map"; map_dir.text = _dir, map.LoadData(_dir); }
     }
 
     void Update()
@@ -303,6 +307,13 @@ public:
         Clear(color2);
         
         // Input
+        bool load_map = false;
+        if (GetKey(olc::NP8).bPressed) { if (room_y > 0)                   { room_y--; load_map = true; } }
+        if (GetKey(olc::NP2).bPressed) { if (room_y < var::world_height-1) { room_y++; load_map = true; } }
+        if (GetKey(olc::NP4).bPressed) { if (room_x > 0)                   { room_x--; load_map = true; } }
+        if (GetKey(olc::NP6).bPressed) { if (room_x < var::world_width-1)  { room_x++; load_map = true; } }
+        if (load_map) { std::string _dir = world.matrix[room_y*world.width+room_x]+".map"; map_dir.text = _dir, map.LoadData(_dir); }
+        if (GetKey(olc::ENTER).bPressed) { world.GenerateMatrix(); }
         if (GetKey(olc::TAB).bPressed) { tile_mode = !tile_mode; }
         if (GetMouse(0).bHeld) { map.SetCell(selected, x, y, layer); }
 

@@ -48,7 +48,7 @@ public:
     void SaveData(std::string _dir)
     {
         std::fstream data_file;
-        data_file.open(_dir);
+        data_file.open("maps/"+_dir);
         if (data_file.is_open())
         {
             for (int l = 0; l < layers; l++)
@@ -69,7 +69,7 @@ public:
     {
         std::string line;
         std::fstream data_file;
-        data_file.open(_dir);
+        data_file.open("maps/"+_dir);
         if (data_file.is_open())
         {
             int layer = 0, y = 0;

@@ -5,6 +5,7 @@
 #include "../../DeathByLiving/Scripts/button.h"
 #include "../../DeathByLiving/Scripts/entry.h"
 #include "map.h"
+#include "world.h"
 #include "project.h"
 
 int main()
