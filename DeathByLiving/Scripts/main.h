@@ -14,6 +14,7 @@ private: // Global variables
 	AudioSystem audio;
 	Inventory inv;
 	Character* player;
+	Character* enemy;
 	olc::Renderable* characterSheet = nullptr;
 
 public:
@@ -21,6 +22,13 @@ public:
 	{
 		// Name your application
 		sAppName = "Example";
+	}
+
+	~Game() 
+	{
+		delete characterSheet;
+		delete player;
+		delete enemy;
 	}
 
 public:
@@ -39,7 +47,10 @@ public:
 		characterSheet->Load("Data/characterSheet.png");
 
 		player = new Character(characterSheet, inv.GetArmor(), inv.GetWeapon());
-		player->pos = olc::vi2d{ScreenWidth() >> 1, ScreenHeight() >> 1 };
+		player->pos = olc::vi2d{ 0, 0 };
+
+		enemy = new Character(characterSheet, inv.GetArmor(), inv.GetWeapon(), 1, 0);
+		enemy->pos = olc::vi2d{2, 1 };
 
 		return true;
 	}
@@ -68,10 +79,31 @@ public:
 		if (GetKey(olc::Key::CTRL).bHeld && GetKey(olc::Key::SHIFT).bHeld && GetKey(olc::Key::NP_SUB).bPressed)  player->health.ModifyValue(-1, true);
 		if (GetKey(olc::Key::CTRL).bHeld && GetKey(olc::Key::NP_ADD).bPressed) player->health.ModifyValue(1);
 
+		if (GetKey(olc::Key::LEFT).bPressed) 
+		{
+			player->pos.x--;
+		}
 
-		player->Draw(this, fElapsedTime);
+		if (GetKey(olc::Key::RIGHT).bPressed)
+		{
+			player->pos.x++;
+		}
+
+		if (GetKey(olc::Key::UP).bPressed)
+		{
+			player->pos.y--;
+		}
+
+		if (GetKey(olc::Key::DOWN).bPressed)
+		{
+			player->pos.y++;
+		}
+
 		inv.Update(this);
+		player->Draw(this, fElapsedTime);
 		player->health.Draw(this, 0, 0);
+
+		enemy->Draw(this, fElapsedTime);
 
 		return true;
 	}
