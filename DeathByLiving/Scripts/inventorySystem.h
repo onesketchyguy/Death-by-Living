@@ -33,13 +33,12 @@ private:
 
 	Item holdingItem = Item::NULL_ITEM;
 
+	bool changed = false;
 	bool draw = false;
 	uint32_t drawLayer = 0;
 
 	void DrawHoldingItem(olc::PixelGameEngine* pge)
 	{
-		if (holdingItem.name == Item::NULL_ITEM.name) return;
-
 		olc::vi2d pos = pge->GetMousePos();
 
 
@@ -141,7 +140,6 @@ private:
 		}
 	}
 
-
 public:
 	int GetEmptySlot()
 	{
@@ -207,32 +205,22 @@ public:
 
 	void Update(olc::PixelGameEngine* pge)
 	{
-		if (inventoryUI == nullptr)
-		{
-			inventoryUI = new olc::Renderable();
-			inventoryUI->Load("Data/ui.png");
-			
-			for (size_t i = 0; i < HORIZONTAL_CELLS * VERTICAL_CELLS; i++)
-			{
-				items.push_back(Item::NULL_ITEM);
-			}
-
-			drawLayer = pge->CreateLayer();
-		}
+		if (draw == false) return;
 
 		if (equippedArmor.type != ARMOR_TYPE) equippedArmor.type = ARMOR_TYPE;
 		if (equippedWeapon.type != WEAPON_TYPE) equippedWeapon.type = WEAPON_TYPE;
-
-
-		pge->SetDrawTarget(drawLayer);
 
 		const float RIGHT = static_cast<float>((SLOT_SIDE_PADDING * 2) + CELL_SIZE * (HORIZONTAL_CELLS + 1.25f));
 		const float BOTTOM = static_cast<float>(SLOT_SIDE_PADDING + SLOT_TOP_OFFSET + (CELL_SIZE * VERTICAL_CELLS));
 
 		const olc::vf2d* positions = new olc::vf2d[4]{
-			windowPosition, windowPosition + olc::vf2d{ RIGHT, 0 }, 
-			windowPosition + olc::vf2d{ RIGHT, BOTTOM }, windowPosition + olc::vf2d{ 0, BOTTOM }
+			windowPosition, 
+			windowPosition + olc::vf2d{ 0, BOTTOM },
+			windowPosition + olc::vf2d{ RIGHT, BOTTOM }, 
+			windowPosition + olc::vf2d{ RIGHT, 0 }, 
 		};
+		
+		pge->SetDrawTarget(drawLayer);
 
 		pge->DrawPartialWarpedDecal(inventoryUI->Decal(), positions, olc::vi2d{ FRAME_SIZE*2,0 }, olc::vi2d{ FRAME_SIZE, FRAME_SIZE }, olc::GREY);
 		pge->DrawStringDecal(windowPosition + olc::vf2d{ 8, 4 }, "INVENTORY", olc::WHITE, olc::vf2d{0.5,0.5});
@@ -269,10 +257,10 @@ public:
 		DrawSlot(windowPosition + olc::vf2d{ (HORIZONTAL_CELLS + 0.25f) * CELL_SIZE, 
 			static_cast<float>(SLOT_TOP_OFFSET + CELL_SIZE)}, equippedWeapon, pge, tooltip);
 
-		DrawHoldingItem(pge);
-
 		if (holdingItem.name != Item::NULL_ITEM.name) 
 		{
+			DrawHoldingItem(pge);
+
 			// If we tried to release the item, but it's still in our hands
 			if (pge->GetMouse(0).bReleased)
 			{
@@ -303,6 +291,23 @@ public:
 
 		delete[] positions;
 		pge->SetDrawTarget(nullptr);
+	}
+
+public: // Constructors
+	~Inventory() { delete inventoryUI; }
+	Inventory() = default;
+
+	void Initialize(olc::PixelGameEngine * pge)
+	{
+		inventoryUI = new olc::Renderable();
+		inventoryUI->Load("Data/ui.png");
+
+		for (size_t i = 0; i < HORIZONTAL_CELLS * VERTICAL_CELLS; i++)
+		{
+			items.push_back(Item::NULL_ITEM);
+		}
+
+		drawLayer = pge->CreateLayer();
 	}
 };
 

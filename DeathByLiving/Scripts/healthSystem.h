@@ -6,20 +6,16 @@
 #include "inventorySystem.h"
 #include "items.h"
 
-struct UserHealth 
+const int START_HEALTH = 20;
+
+struct HealthContainer 
 {
 private:
-	const int START_HEALTH = 20;
-	int health = START_HEALTH;
+	int health;
 
 	Item& armor;
 
 public:
-	void Initialize() 
-	{
-		health = START_HEALTH;
-	}
-
 	void ModifyValue(int mod, const bool overrideArmor = false) 
 	{
 		if (mod < 0 && !overrideArmor && armor.name != Item::NULL_ITEM.name)
@@ -48,9 +44,9 @@ public:
 		pge->DrawStringDecal(olc::vi2d{x, y}, std::to_string(health));
 	}
 
-	UserHealth(Item& armor) : armor{armor}
+	HealthContainer(int startHealth, Item& armor) : armor{armor}
 	{
-		Initialize();
+		health = startHealth;
 	}
 };
 
