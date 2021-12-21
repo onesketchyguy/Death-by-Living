@@ -1,7 +1,14 @@
+#pragma once
+#ifndef UTIL_H_
+#define UTIL_H_
+
+#include <iostream>
+#include <cstring>
+
 namespace util
 {
 
-    void ApplySeed(std::string seedString)
+    unsigned int GetSeed(std::string seedString)
     {
         unsigned int value = 0;
 
@@ -15,9 +22,43 @@ namespace util
                 value = (value + static_cast<int>(seedString[i])) % INT32_MAX;
         }
 
-        seed = value;
-
-        srand(value);
+        return value;
     }
 
+    unsigned int GetStringWidth(std::string str)
+    {
+        unsigned int size = 0;
+        unsigned int cSize = 0;
+
+        for (size_t i = 0; i < str.size(); i++)
+        {
+            cSize++;
+
+            if (str.at(i) == '\n')
+            {
+                cSize = 0;
+            }
+
+            if (cSize > size) size = cSize;
+        }
+
+        return size;
+    }
+
+    unsigned int GetStringHeight(std::string str)
+    {
+        unsigned int size = 0;
+
+        for (size_t i = 0; i < str.size(); i++)
+        {
+            if (str.at(i) == '\n')
+            {
+                size++;
+            }
+        }
+
+        return size;
+    }
 }
+
+#endif

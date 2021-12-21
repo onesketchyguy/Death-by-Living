@@ -15,16 +15,26 @@ using json = nlohmann::json;
 #define NO_USE_ITEM_TYPE "Useless";
 #define ITEM_TYPES_LENGTH 3;
 
+namespace ITEM 
+{
+	const int MAX_CELL_X = 4;
+	const int MAX_CELL_Y = 3;
+}
+
+
 struct Item
 {
 	// The name of this item
 	std::string name = "Generic Item";
 	// The key value for this item. IE damage, healing, etc.
-	short keyValue = 1;
+	int keyValue = 1;
 	// The number of uses this item has left
 	int durValue = 1;
 	/// The type of item this is
 	std::string type = NO_USE_ITEM_TYPE;
+
+	int spriteCellY = 0;
+	int spriteCellX = 0;
 
 	Item() = default;
 	Item(const char* name, short keyValue, int durValue, const char* type)
@@ -130,8 +140,11 @@ const Item Item::GetRandomItem()
 	int level = rand() % NAMES_LENGTH;
 	i.name = names[level];
 
-	i.keyValue = rand() % 10;
-	i.durValue = rand() % 10;
+	i.keyValue = 0;
+	i.durValue = 0;
+
+	i.spriteCellX = 3;
+	i.spriteCellY = 1 + (rand() % ITEM::MAX_CELL_Y);
 
 	int t = rand() % ITEM_TYPES_LENGTH;
 
@@ -150,6 +163,8 @@ const Item Item::GetRandomItem()
 		i.durValue = level + rand() % (1 + quality * 3);
 		i.keyValue = level + rand() % (1 + quality * 2);
 
+		i.spriteCellX = 2;		
+
 		break;
 	case 1:
 		i.type = WEAPON_ITEM_TYPE;
@@ -164,9 +179,31 @@ const Item Item::GetRandomItem()
 		i.durValue = (level * 2) + rand() % (1 + quality * 3);
 		i.keyValue = level + rand() % (1 + quality * 2);
 
+		i.spriteCellX = 0;
+
 		break;
 	case 2:
 		i.type = HEALING_ITEM_TYPE;
+		NAMES_LENGTH = 5;
+		names = new std::string[NAMES_LENGTH]
+		{
+			"red", "blue", "green", "purple","grey"
+		};
+
+		qualityNames = new std::string[QUALITY_LEVELS]
+		{
+			"Ugly ", "Curious ", "Smelly ", "Absurd ", "Fascinating ", "Curious ", "Enticing "
+		};
+
+		level = rand() % NAMES_LENGTH;
+		i.name = qualityNames[quality] + names[level] + " potion";
+		quality += 1;
+		i.durValue = 1 + rand() % 2;
+
+		do i.keyValue = (quality - (rand() % (quality * 2))) * 2; while (i.keyValue == 0);
+
+		i.spriteCellX = 1;
+
 		break;
 	default:
 		i.type = NO_USE_ITEM_TYPE;
