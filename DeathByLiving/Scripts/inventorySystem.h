@@ -4,6 +4,8 @@
 
 #include "../lib/olcPixelGameEngine.h"
 #include "items.h"
+#include "button.h"
+#include "utility.h"
 
 class Inventory 
 {
@@ -36,26 +38,16 @@ private:
 	bool changed = false;
 	bool draw = false;
 	uint32_t drawLayer = 0;
+	bool droppingItem = false;	
+	Item* output = nullptr;
 
 	void DrawHoldingItem(olc::PixelGameEngine* pge)
 	{
 		olc::vi2d pos = pge->GetMousePos();
 
-
-		if (holdingItem.type == ARMOR_TYPE) 
-		{
-			pge->DrawPartialDecal(pos, DRAW_SIZE, inventoryUI->Decal(), olc::vi2d{ FRAME_SIZE * 2, FRAME_SIZE }, olc::vi2d{ FRAME_SIZE, FRAME_SIZE });
-		}
-
-		if (holdingItem.type == WEAPON_TYPE)
-		{
-			pge->DrawPartialDecal(pos, DRAW_SIZE, inventoryUI->Decal(), olc::vi2d{ 0, FRAME_SIZE }, olc::vi2d{ FRAME_SIZE, FRAME_SIZE });
-		}
-
-		if (holdingItem.type == HEALING_TYPE)
-		{
-			pge->DrawPartialDecal(pos, DRAW_SIZE, inventoryUI->Decal(), olc::vi2d{ FRAME_SIZE, FRAME_SIZE }, olc::vi2d{ FRAME_SIZE, FRAME_SIZE });
-		}
+		pge->DrawPartialDecal(pos, DRAW_SIZE, inventoryUI->Decal(), 
+			olc::vi2d{ FRAME_SIZE * holdingItem.spriteCellX, FRAME_SIZE * holdingItem.spriteCellY },
+			olc::vi2d{ FRAME_SIZE, FRAME_SIZE });
 	}
 
 	void DrawSlot(olc::vi2d pos, Item& item, olc::PixelGameEngine* pge, std::string& tooltip)
@@ -87,28 +79,28 @@ private:
 			{
 				itemInfo = item.name + "\n" +
 					std::to_string(item.keyValue) + "def\n" +
-					std::to_string(item.durValue) + "dur\n";
-
-				pge->DrawPartialDecal(pos, DRAW_SIZE, inventoryUI->Decal(), olc::vi2d{ FRAME_SIZE * 2, FRAME_SIZE }, olc::vi2d{ FRAME_SIZE, FRAME_SIZE });
+					std::to_string(item.durValue) + "dur\n";				
 			}
 
 			if (item.type == WEAPON_TYPE)
 			{
 				itemInfo = item.name + "\n" +
 					std::to_string(item.keyValue) + "dam\n" +
-					std::to_string(item.durValue) + "dur\n";
-
-				pge->DrawPartialDecal(pos, DRAW_SIZE, inventoryUI->Decal(), olc::vi2d{ 0, FRAME_SIZE }, olc::vi2d{ FRAME_SIZE, FRAME_SIZE });
+					std::to_string(item.durValue) + "dur\n";	
 			}
 
 			if (item.type == HEALING_TYPE)
 			{
 				itemInfo = item.name + "\n" +
-					std::to_string(item.keyValue) + "healing\n" +
+					//std::to_string(item.keyValue) + "healing\n" + // Let's hide this from the user
 					std::to_string(item.durValue) + "uses\n";
 
-				pge->DrawPartialDecal(pos, DRAW_SIZE, inventoryUI->Decal(), olc::vi2d{ FRAME_SIZE, FRAME_SIZE }, olc::vi2d{ FRAME_SIZE, FRAME_SIZE });
+				if (mouseOver && pge->GetMouse(1).bReleased) output = &item;
 			}
+
+			pge->DrawPartialDecal(pos, DRAW_SIZE, inventoryUI->Decal(),
+				olc::vi2d{ FRAME_SIZE * item.spriteCellX, FRAME_SIZE * item.spriteCellY },
+				olc::vi2d{ FRAME_SIZE, FRAME_SIZE });
 
 			if (mouseOver) 
 			{
@@ -128,12 +120,23 @@ private:
 		}
 		else if (mouseOver)
 		{
-			if (pge->GetMouse(0).bReleased)
+			if (pge->GetMouse(0).bReleased && holdingItem.name != Item::NULL_ITEM.name)
 			{
-				if (holdingItem.name != Item::NULL_ITEM.name && holdingItem.type != ARMOR_TYPE && holdingItem.type != WEAPON_TYPE &&
-					item.type != ARMOR_TYPE && item.type != WEAPON_TYPE)
+				bool isWeapon = holdingItem.type == WEAPON_TYPE;
+				bool isArmor = holdingItem.type == ARMOR_TYPE;
+
+				bool isArmorSlot = item.type == ARMOR_TYPE;
+				bool isWeaponSlot = item.type == WEAPON_TYPE;
+
+				if (((isArmor && isArmorSlot) || (isWeapon && isWeaponSlot)) ||
+					(!isArmor && !isArmorSlot && !isWeapon && !isWeaponSlot))
 				{
 					item = holdingItem;
+					holdingItem = Item::NULL_ITEM;
+				}
+				else 
+				{
+					AddItem(holdingItem);
 					holdingItem = Item::NULL_ITEM;
 				}
 			}
@@ -194,6 +197,13 @@ public:
 	void SetDrawing(bool value, olc::PixelGameEngine* pge) { draw = value; pge->EnableLayer(drawLayer, value); }
 	bool GetDrawing() { return draw; }
 
+	Item* GetUsedItem() { return output; }
+	void ClearUseItem() 
+	{ 
+		if (output->durValue <= 0) output->name = Item::NULL_ITEM.name;
+		output = nullptr; 
+	};
+
 	Item& GetArmor() { return equippedArmor; }
 	Item& GetWeapon() { return equippedWeapon; }	
 
@@ -205,6 +215,41 @@ public:
 
 	void Update(olc::PixelGameEngine* pge)
 	{
+		if (GetUsedItem() != nullptr && GetUsedItem()->name == Item::NULL_ITEM.name) ClearUseItem();
+
+		if (droppingItem) 
+		{
+			pge->SetDrawTarget(drawLayer);
+
+			Button dropButton{ static_cast<float>(pge->ScreenWidth() >> 1), static_cast<float>((pge->ScreenHeight() >> 1) + 10), 30, 15, 1.0f, "Drop"};
+			Button cancelButton{ static_cast<float>(pge->ScreenWidth() >> 1), static_cast<float>((pge->ScreenHeight() >> 1) - 10), 30, 15, 1.0f, "Cancel" };
+			pge->DrawStringDecal(olc::vf2d{ dropButton.x , dropButton.y }, dropButton.text, 
+				dropButton.IsColliding(pge->GetMouseX(), pge->GetMouseY()) ? olc::WHITE : olc::GREY, olc::vf2d{1,1}*dropButton.font*0.5f);
+			pge->DrawStringDecal(olc::vf2d{ cancelButton.x , cancelButton.y }, cancelButton.text, 
+				cancelButton.IsColliding(pge->GetMouseX(), pge->GetMouseY()) ? olc::WHITE : olc::GREY, olc::vf2d{ 1,1 }*cancelButton.font*0.5f);
+
+			if (pge->GetMouse(0).bReleased) 
+			{
+				if (cancelButton.IsColliding(pge->GetMouseX(), pge->GetMouseY())) 
+				{
+					AddItem(holdingItem);
+					holdingItem = Item::NULL_ITEM;
+
+					droppingItem = false;
+				}
+				else if (dropButton.IsColliding(pge->GetMouseX(), pge->GetMouseY()))
+				{
+					holdingItem = Item::NULL_ITEM;
+
+					droppingItem = false;
+				}
+			}
+
+
+			pge->SetDrawTarget(nullptr);
+			return;
+		}
+
 		if (draw == false) return;
 
 		if (equippedArmor.type != ARMOR_TYPE) equippedArmor.type = ARMOR_TYPE;
@@ -225,32 +270,18 @@ public:
 		pge->DrawPartialWarpedDecal(inventoryUI->Decal(), positions, olc::vi2d{ FRAME_SIZE*2,0 }, olc::vi2d{ FRAME_SIZE, FRAME_SIZE }, olc::GREY);
 		pge->DrawStringDecal(windowPosition + olc::vf2d{ 8, 4 }, "INVENTORY", olc::WHITE, olc::vf2d{0.5,0.5});
 
-		std::string tooltip = "";
-		std::string startToolTip = "";
-		int toolTipX = 0, toolTipY = 0;
+	std::string tooltip = "";
 
 		for (int x = 0; x < HORIZONTAL_CELLS; x++)
 		{			
 			for (int y = 0; y < VERTICAL_CELLS; y++)
 			{
-				startToolTip = tooltip;
-
 				olc::vi2d pos = windowPosition + olc::vi2d{ SLOT_SIDE_PADDING + (x * CELL_SIZE), SLOT_TOP_OFFSET + (y * CELL_SIZE) };
 				Item* item = &items[y * HORIZONTAL_CELLS + x];
 
 				DrawSlot(pos, *item, pge, tooltip);
-
-				if (startToolTip != tooltip)
-				{
-					toolTipX = x;
-					toolTipY = y;
-
-					startToolTip = tooltip;
-				}
 			}			
 		}
-
-		startToolTip = tooltip;
 
 		DrawSlot(windowPosition + olc::vf2d{ (HORIZONTAL_CELLS + 0.25f) * CELL_SIZE, 
 			static_cast<float>(SLOT_TOP_OFFSET)}, equippedArmor, pge, tooltip);
@@ -262,31 +293,22 @@ public:
 			DrawHoldingItem(pge);
 
 			// If we tried to release the item, but it's still in our hands
-			if (pge->GetMouse(0).bReleased)
-			{
-				AddItem(holdingItem);
-				holdingItem = Item::NULL_ITEM;
-			}
-		}
-
-		if (startToolTip != tooltip)
-		{
-			toolTipX = -1;
-			toolTipY = 0;
+			if (pge->GetMouse(0).bReleased) droppingItem = true;
 		}
 
 		if (tooltip.empty() == false) 
 		{
-			toolTipX += 1;
+			olc::vf2d drawPos = pge->GetMousePos();
 
-			olc::vf2d drawPos = windowPosition + olc::vi2d{ 
-				SLOT_SIDE_PADDING + (toolTipX * CELL_SIZE), 
-				SLOT_TOP_OFFSET + (toolTipY * CELL_SIZE) };
+			// Adjust the position to keep the text on screen
+			int delta = (drawPos.x + (util::GetStringWidth(tooltip) * 4)) - pge->ScreenWidth();
+			if (delta > 0) drawPos.x -= delta;
 
-			if (drawPos.x + (CELL_SIZE * 2) >= pge->ScreenWidth()) drawPos.x = windowPosition.x + SLOT_SIDE_PADDING;
+			delta = (drawPos.y + (util::GetStringHeight(tooltip) * 4)) - pge->ScreenHeight();
+			if (delta > 0) drawPos.y -= delta;
 
 			pge->DrawStringDecal(olc::vf2d{-0.05f, 0.05f} + drawPos, tooltip, olc::BLACK, olc::vf2d{ 0.5f, 0.5f });
-			pge->DrawStringDecal(drawPos, tooltip, olc::WHITE, olc::vf2d{ 0.5f, 0.5f });
+			pge->DrawStringDecal(drawPos, tooltip, olc::WHITE, olc::vf2d{0.5f, 0.5f});
 		}
 
 		delete[] positions;
@@ -294,13 +316,12 @@ public:
 	}
 
 public: // Constructors
-	~Inventory() { delete inventoryUI; }
+	~Inventory() = default;
 	Inventory() = default;
 
-	void Initialize(olc::PixelGameEngine * pge)
+	void Initialize(olc::PixelGameEngine * pge, olc::Renderable* inventoryUI)
 	{
-		inventoryUI = new olc::Renderable();
-		inventoryUI->Load("Data/ui.png");
+		this->inventoryUI = inventoryUI;
 
 		for (size_t i = 0; i < HORIZONTAL_CELLS * VERTICAL_CELLS; i++)
 		{
