@@ -20,11 +20,12 @@ public:
     World world = World(16, 16);
     olc::Renderable tileset;
     olc::Pixel color0 = olc::Pixel(128, 128, 128, 64);
-    olc::Pixel color1 = olc::Pixel(4, 4, 6);
-    olc::Pixel color2 = olc::Pixel(8, 8, 12);
-    olc::Pixel color3 = olc::Pixel(16, 16, 24);
-    olc::Pixel color4 = olc::Pixel(196, 196, 255);
-    olc::Pixel color5 = olc::Pixel(250, 250, 255);
+    olc::Pixel color1 = olc::Pixel(  4,   4,   6);
+    olc::Pixel color2 = olc::Pixel(  8,   8,  12);
+    olc::Pixel color3 = olc::Pixel( 16,  16,  24);
+    olc::Pixel color4 = olc::Pixel( 64,  64,  96);
+    olc::Pixel color5 = olc::Pixel(128, 128, 160);
+    olc::Pixel color6 = olc::Pixel(250, 250, 255);
 
 
 
@@ -138,12 +139,13 @@ public:
         return c;
     }
 
+    void LoadMap() { std::string _dir = world.matrix[room_y*world.width+room_x]+".map"; map_dir.text=_dir; map_dir.cursor=map_dir.text.length(); map.LoadData(_dir); }
+
     void DrawButton(Button b)
     {
-        DrawStringDecal({ b.TextX(),b.TextY() }, b.text, color5, {b.font, b.font});
-        if (b.IsColliding(GetMouseX(), GetMouseY()))
-        { DrawRect(b.x, b.y, b.width, b.height, color4); return; }
-        DrawRect(b.x, b.y, b.width, b.height, color3);
+        DrawStringDecal({ b.TextX(),b.TextY() }, b.text, color6, {b.font, b.font});
+        if (b.IsColliding(GetMouseX(), GetMouseY())) { DrawRect(b.x, b.y, b.width, b.height, color5); return; }
+        DrawRect(b.x, b.y, b.width, b.height, color4);
     }
 
     void DrawEntry(Entry e)
@@ -151,16 +153,16 @@ public:
         float x = e.x+(float(e.cursor)*(8.0*e.font));
         float y = e.y-(e.font*4.0);
         FillRect(e.x, y, e.max_chars*(8.0*e.font), 16.0*e.font, color1);
-        DrawRect(e.x, y, e.max_chars*(8.0*e.font), 16.0*e.font, color3);
-        DrawStringDecal({ e.x,e.y }, e.text, color5, {e.font, e.font});
+        DrawRect(e.x, y, e.max_chars*(8.0*e.font), 16.0*e.font, color5);
+        DrawStringDecal({ e.x,e.y }, e.text, color6, {e.font, e.font});
         FillRect(x, y, e.font*8.0, e.font*16.0, color3);
         DrawRect(x, y, e.font*8.0, e.font*16.0, color4);
     }
 
     void DrawGrid()
     {
-        for (int y = 0; y < var::room_height*var::tile+1; y += var::tile) { DrawLine(0, y, var::room_width*var::tile, y, color3); }
-        for (int x = 0; x < var::room_width*var::tile+1; x += var::tile) { DrawLine(x, 0, x, var::room_height*var::tile, color3); }
+        for (int y = 0; y < var::room_height*var::tile+1; y += var::tile) { DrawLine(0, y, var::room_width*var::tile, y, color5); }
+        for (int x = 0; x < var::room_width*var::tile+1; x += var::tile) { DrawLine(x, 0, x, var::room_height*var::tile, color5); }
     }
 
     void DrawChars()
@@ -171,7 +173,7 @@ public:
             {
                 float X = x*var::tile, Y = y*var::tile;
                 std::string tile = ""; tile += map.matrix[layer][y*map.width+x];
-                DrawStringDecal({ X,Y }, tile, color4, { 2.0,2.0 });
+                DrawStringDecal({ X,Y }, tile, color6, { 2.0,2.0 });
             }
         }
     }
@@ -242,14 +244,14 @@ public:
     {
         int X = (var::room_width*var::tile)+210;
         int Y = 6;
-        DrawRect(X-1, Y-1, 17, 17, color4);
+        DrawRect(X-1, Y-1, 17, 17, color1);
+        DrawRect(X-1, Y-1, 17, 17, color5);
         for (int y = 0; y < var::world_height; y++)
         {
             for (int x = 0; x < var::world_width; x++)
             {
-                Draw(x+X, y+Y, color3);
-                if (world.matrix[y*world.width+x] == "0000") Draw(x+X, y+Y, color1); else { Draw(x+X, y+Y, color3); }
-                if (x == room_x && y == room_y) Draw(x+X, y+Y, color5);
+                if (world.matrix[y*world.width+x] != "0000") { Draw(x+X, y+Y, color4); }
+                if (x == room_x && y == room_y) Draw(x+X, y+Y, color6);
             }
         }
     }
@@ -264,22 +266,24 @@ public:
         std::string t = ""+std::to_string(selected);
         float xoff = var::room_width*var::tile;
         if (map.GetCollision(x, y, layer)) { n += " Collision"; }
-        DrawStringDecal({ xoff,0  }, " Layer:      "+l, color5, { 1.0,1.0 });
-        DrawStringDecal({ xoff,8  }, " Cell Value: "+n, color5, { 1.0,1.0 });
-        DrawStringDecal({ xoff,16 }, " Tile Value: "+t, color5, { 1.0,1.0 });
+        DrawStringDecal({ xoff,0  }, " Layer:      "+l, color6, { 1.0,1.0 });
+        DrawStringDecal({ xoff,8  }, " Cell Value: "+n, color6, { 1.0,1.0 });
+        DrawStringDecal({ xoff,16 }, " Tile Value: "+t, color6, { 1.0,1.0 });
 
-        FillRect(xoff+(200), 48, 56, 212, color1);
+        // Button Panel
+        FillRect(xoff+(200), 48, 55, 212, color1);
+        DrawRect(xoff+(200), 48, 55, 212, color5);
 
         map_dir.Update(GetCharacter());
         DrawEntry(map_dir);
 
-        Button save_layer      = Button(xoff+(204),  52.0, 48.0, 14.0, 1.0, "Save");   DrawButton(save_layer);
-        Button load_layer      = Button(xoff+(204),  68.0, 48.0, 14.0, 1.0, "Load");   DrawButton(load_layer);
-        Button increment_layer = Button(xoff+(204),  89.0, 48.0, 14.0, 1.0, "Layer+"); DrawButton(increment_layer);
-        Button decrement_layer = Button(xoff+(204), 105.0, 48.0, 14.0, 1.0, "Layer-"); DrawButton(decrement_layer);
-        Button append_layer    = Button(xoff+(204), 126.0, 48.0, 14.0, 1.0, "Append"); DrawButton(append_layer);
-        Button insert_layer    = Button(xoff+(204), 142.0, 48.0, 14.0, 1.0, "Insert"); DrawButton(insert_layer);
-        Button delete_layer    = Button(xoff+(204), 158.0, 48.0, 14.0, 1.0, "Delete"); DrawButton(delete_layer);
+        Button save_layer      = Button(xoff+(204),  52.0, 47.0, 14.0, 1.0, "Save");   DrawButton(save_layer);
+        Button load_layer      = Button(xoff+(204),  68.0, 47.0, 14.0, 1.0, "Load");   DrawButton(load_layer);
+        Button increment_layer = Button(xoff+(204),  89.0, 47.0, 14.0, 1.0, "Layer+"); DrawButton(increment_layer);
+        Button decrement_layer = Button(xoff+(204), 105.0, 47.0, 14.0, 1.0, "Layer-"); DrawButton(decrement_layer);
+        Button append_layer    = Button(xoff+(204), 126.0, 47.0, 14.0, 1.0, "Append"); DrawButton(append_layer);
+        Button insert_layer    = Button(xoff+(204), 142.0, 47.0, 14.0, 1.0, "Insert"); DrawButton(insert_layer);
+        Button delete_layer    = Button(xoff+(204), 158.0, 47.0, 14.0, 1.0, "Delete"); DrawButton(delete_layer);
         Button move_up         = Button(xoff+(237),   1.0,  8.0,  8.0, 1.0, "");     DrawButton(move_up);
         Button move_down       = Button(xoff+(237),  19.0,  8.0,  8.0, 1.0, "");   DrawButton(move_down);
         Button move_left       = Button(xoff+(228),  10.0,  8.0,  8.0, 1.0, "");   DrawButton(move_left);
@@ -297,8 +301,7 @@ public:
         if (move_down.IsColliding(X, Y) && GetMouse(0).bPressed)  { if (room_y < var::world_height-1) { room_y++; load_map = true; } }
         if (move_left.IsColliding(X, Y) && GetMouse(0).bPressed)  { if (room_x > 0)                   { room_x--; load_map = true; } }
         if (move_right.IsColliding(X, Y) && GetMouse(0).bPressed) { if (room_x < var::world_width-1)  { room_x++; load_map = true; } }
-        
-        if (load_map) { std::string _dir = world.matrix[room_y*world.width+room_x]+".map"; map_dir.text = _dir, map.LoadData(_dir); }
+        if (load_map) { LoadMap(); }
     }
 
     void Update()
@@ -312,8 +315,8 @@ public:
         if (GetKey(olc::NP2).bPressed) { if (room_y < var::world_height-1) { room_y++; load_map = true; } }
         if (GetKey(olc::NP4).bPressed) { if (room_x > 0)                   { room_x--; load_map = true; } }
         if (GetKey(olc::NP6).bPressed) { if (room_x < var::world_width-1)  { room_x++; load_map = true; } }
-        if (load_map) { std::string _dir = world.matrix[room_y*world.width+room_x]+".map"; map_dir.text = _dir, map.LoadData(_dir); }
-        if (GetKey(olc::ENTER).bPressed) { world.GenerateMatrix(); }
+        if (load_map) { LoadMap(); }
+        if (GetKey(olc::ENTER).bPressed) { world.GenerateMatrix(); LoadMap(); }
         if (GetKey(olc::TAB).bPressed) { tile_mode = !tile_mode; }
         if (GetMouse(0).bHeld) { map.SetCell(selected, x, y, layer); }
 
