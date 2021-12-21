@@ -11,6 +11,7 @@ const int MOVE_COST = 1;
 #include "inventorySystem.h"
 #include "healthSystem.h"
 #include "characterSystem.h"
+#include "turnManager.h"
 
 class Game : public olc::PixelGameEngine
 {
@@ -19,6 +20,12 @@ private: // Global variables
 	Inventory inv;
 	Character* player;
 	Character* enemy;
+
+	const float AI_THINK_TIME = 0.5f;
+	float aiThinking = 0.0f;
+
+	TurnManager turnManager;
+
 	olc::Renderable* characterSheet = nullptr;
 	olc::Renderable* uiSheet = nullptr;
 
@@ -65,6 +72,11 @@ public:
 
 		enemy = new Character(characterSheet, inv.GetArmor(), inv.GetWeapon(), 1, 0);
 		enemy->pos = olc::vi2d{2, 1 };
+
+		turnManager.AddCharacter(player);
+		turnManager.AddCharacter(enemy);
+
+		turnManager.SetTurnOrder();
 
 		return true;
 	}
@@ -120,8 +132,39 @@ public:
 
 		enemy->Draw(this, fElapsedTime);
 
-		// FIXME: Implement turns
-		if (player->actionTokens <= 0) player->StartTurn(); // DEBUG::REMOVE ME
+		// Turn implementation
+		auto currentTurn = turnManager.GetCurrentCharacterTurn();
+		if (currentTurn == nullptr) turnManager.CycleTurn();
+		else if (currentTurn->actionTokens <= 0) 
+		{
+			currentTurn->EndTurn();
+
+			turnManager.CycleTurn();
+		}
+
+		// FIXME: Implement AI
+		if (currentTurn == enemy) 
+		{
+			if (aiThinking >= AI_THINK_TIME)
+			{
+				int xDir = rand() % 100 > 50 ? 1 : -1;
+				int yDir = rand() % 100 > 50 ? 1 : -1;
+
+				int newPosX = enemy->GetScreenPos(enemy->pos.x + xDir, 0).x;
+				int newPosY = enemy->GetScreenPos(0, enemy->pos.y + yDir).y;
+
+				if (newPosX > ScreenWidth() || newPosX <= 0) xDir = 0;
+				if (newPosY > ScreenHeight() || newPosY <= 0) yDir = 0;
+
+				aiThinking = 0.0f;
+
+				enemy->MoveDir(xDir, yDir);
+			}
+			else 
+			{
+				aiThinking += fElapsedTime;
+			}
+		}
 
 		// Draw available actionTokens
 		for (size_t i = 0; i < 3; i++)

@@ -42,10 +42,9 @@ public:
 
 	int actionTokens = 0;
 
-	olc::vi2d GetScreenPos()
-	{
-		return olc::vi2d{ pos.x * drawScaleX, pos.y * drawScaleY };
-	}
+	olc::vi2d GetScreenPos() { return olc::vi2d{ pos.x * drawScaleX, pos.y * drawScaleY }; }
+
+	olc::vi2d GetScreenPos(int x, int y) { return olc::vi2d{ x * drawScaleX, y * drawScaleY }; }
 
 	void DealDamage(int damage)
 	{
@@ -85,11 +84,6 @@ public:
 
 			pos.x += xDir;
 			pos.y += yDir;
-
-			if (actionTokens <= 0) 
-			{
-				EndTurn();
-			}
 		}
 
 	}
