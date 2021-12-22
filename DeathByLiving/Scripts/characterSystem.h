@@ -119,8 +119,10 @@ public:
 
 			float animEval = 1 - (deathAnimTime / DEATH_ANIM_LENGTH);
 
-			positions[0] = GetScreenPos() + olc::vf2d{ 0, (animateAmount * sin(elapsedTime)) + BOTTOM * animEval };
-			positions[3] = GetScreenPos() + olc::vf2d{ RIGHT, (animateAmount * cos(elapsedTime)) + BOTTOM * animEval*0.8f };
+			float topRight = (animateAmount * sin(elapsedTime)) + BOTTOM * animEval;
+			float topLeft = (animateAmount * cos(elapsedTime)) + BOTTOM * animEval * 0.8f;
+			positions[0] = GetScreenPos() + olc::vf2d{ 0, topRight };
+			positions[3] = GetScreenPos() + olc::vf2d{ RIGHT, topLeft };
 		}
 		else 
 		{

@@ -1,12 +1,14 @@
+#include "audioSystem.h"
 #include <iostream>
+
+#ifndef NO_AUDIO
+
 #include <unordered_map>
 
 // MAKE SURE YOU HAVE THE LINKER SET UP!!!
 #include <soloud.h>
 #include <soloud_wav.h>
 // ***************************************
-
-#include "audioSystem.h"
 
 SoLoud::Soloud soLoud; // SoLoud engine
 std::unordered_map <std::string, SoLoud::Wav*> clipMap;
@@ -51,3 +53,23 @@ void AudioSystem::PlayClip(const char* clipLocation)
 	//int x = soLoud.play(gWave); // Grab the handle
 	//soLoud.setPan(x, -0.2f);    // Use handle to adjust panning
 }
+
+#endif // NO_AUDIO
+
+#ifdef NO_AUDIO
+AudioSystem::AudioSystem() = default;
+AudioSystem::~AudioSystem() = default;
+
+void AudioSystem::LoadClip(const char* clipLocation)
+{
+	if (AUDIO_ENABLED == false) return;
+	std::cout << "Unable to load clip! NO_AUDIO defined in comiler" << std::endl;
+}
+
+void AudioSystem::PlayClip(const char* clipLocation)
+{
+	if (AUDIO_ENABLED == false) return;
+	std::cout << "Unable to play clip! NO_AUDIO defined in comiler" << std::endl;
+}
+
+#endif // NO_AUDIO
