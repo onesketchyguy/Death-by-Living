@@ -1,6 +1,8 @@
 #include "audioSystem.h"
 #include <iostream>
 
+#ifndef NO_AUDIO
+
 #include <unordered_map>
 
 // MAKE SURE YOU HAVE THE LINKER SET UP!!!
