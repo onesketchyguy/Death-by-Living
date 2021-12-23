@@ -11,9 +11,9 @@ using json = nlohmann::json;
 struct SettingsData 
 {
 	bool soundEnabled = true;
-	int pixelSize = 1;
-	int windowWidth = 800;
-	int windowHeight = 500;
+	int pixelSize = 3;
+	int windowWidth = 1024;
+	int windowHeight = 720;
 
 	// Write JSON to file
 	const static void WriteToJson(SettingsData& settings, std::string fileName = "Data/settings.json")
@@ -34,7 +34,7 @@ struct SettingsData
 	}
 
 	// Read a JSON file
-	const static void LoadJsonData(SettingsData& settings, std::string fileName = "Data/settings.json")
+	const static bool LoadJsonData(SettingsData& settings, std::string fileName = "Data/settings.json")
 	{
 		std::ifstream fs;
 		fs.open(fileName);
@@ -42,7 +42,7 @@ struct SettingsData
 		if (fs.is_open() == false)
 		{
 			std::cout << "No settings file found. Returning default settings." << std::endl;
-			return;
+			return false;
 		}
 
 		std::cout << "Found file. ";
@@ -69,6 +69,8 @@ struct SettingsData
 		fs.close();
 
 		std::cout << "Settings loaded." << std::endl;
+
+		return true;
 	}
 };
 
