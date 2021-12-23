@@ -1,3 +1,9 @@
+#include "var.h"
+#include "../../DeathByLiving/Scripts/button.h"
+#include "../../DeathByLiving/Scripts/entry.h"
+#include "../../DeathByLiving/Scripts/map.h"
+#include "../../DeathByLiving/Scripts/world.h"
+
 class Game : public olc::PixelGameEngine
 {
 
@@ -327,7 +333,7 @@ public:
 
     bool OnUserCreate() override
     {
-        tileset = olc::Renderable();
+        //tileset = olc::Renderable();
         tileset.Load("../../DeathByLiving/Data/tiles-16x16.png");
         return true;
     }

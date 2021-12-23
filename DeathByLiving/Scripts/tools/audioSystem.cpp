@@ -51,3 +51,23 @@ void AudioSystem::PlayClip(const char* clipLocation)
 	//int x = soLoud.play(gWave); // Grab the handle
 	//soLoud.setPan(x, -0.2f);    // Use handle to adjust panning
 }
+
+#endif // NO_AUDIO
+
+#ifdef NO_AUDIO
+AudioSystem::AudioSystem() = default;
+AudioSystem::~AudioSystem() = default;
+
+void AudioSystem::LoadClip(const char* clipLocation)
+{
+	if (AUDIO_ENABLED == false) return;
+	std::cout << "Unable to load clip! NO_AUDIO defined in comiler" << std::endl;
+}
+
+void AudioSystem::PlayClip(const char* clipLocation)
+{
+	if (AUDIO_ENABLED == false) return;
+	std::cout << "Unable to play clip! NO_AUDIO defined in comiler" << std::endl;
+}
+
+#endif // NO_AUDIO

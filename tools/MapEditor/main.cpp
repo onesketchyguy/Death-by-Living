@@ -1,11 +1,6 @@
 #define OLC_PGE_APPLICATION
-#include "../../DeathByLiving/lib/olcPixelGameEngine15.h"
+#include "../../DeathByLiving/lib/olcPixelGameEngine.h"
 
-#include "var.h"
-#include "../../DeathByLiving/Scripts/button.h"
-#include "../../DeathByLiving/Scripts/entry.h"
-#include "map.h"
-#include "world.h"
 #include "project.h"
 
 int main()
