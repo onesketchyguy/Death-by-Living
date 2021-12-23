@@ -3,12 +3,17 @@
 #define OLC_PGE_APPLICATION
 #include "lib/olcPixelGameEngine.h"
 #include "Scripts/main.h"
+//#include "../tools/MapEditor/project.h"
 #include "Scripts/settings.h"
 
 bool AUDIO_ENABLED = true;
 
 int main() 
 {
+#ifdef NDEBUG
+	ShowWindow(GetConsoleWindow(), SW_HIDE);
+#endif // NDEBUG
+
 	SettingsData settings;
 	SettingsData::LoadJsonData(settings);
 
