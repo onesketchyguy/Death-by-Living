@@ -1,7 +1,6 @@
 #pragma once
 
 extern bool AUDIO_ENABLED;
-AudioSystem audio;
 
 #include "../lib/olcPixelGameEngine.h"
 #include "tools/audioSystem.h"
@@ -32,6 +31,7 @@ public:
 	{
 		delete characterSheet;
 		delete uiSheet;
+		AudioSystem::DestroyInstance();
 		
 		for (auto c : characters) delete c;
 	}
@@ -43,7 +43,7 @@ public:
 
 		srand(time(0));
 
-		audio.LoadTestCases();
+		AudioSystem::CreateInstance();		
 
 		uiSheet = new olc::Renderable();
 		uiSheet->Load("Data/ui.png");
@@ -80,9 +80,8 @@ public:
 	{
 		Clear(olc::BLANK);
 
-		if (GetKey(olc::Key::CTRL).bHeld && GetKey(olc::Key::TILDE).bPressed) audio.RunTestCase();
-		
-		//if (GetKey(olc::Key::CTRL).bHeld && GetKey(olc::Key::NP_SUB).bPressed) player->DealDamage(1);
+		if (GetKey(olc::Key::CTRL).bHeld && GetKey(olc::Key::I).bPressed) player->inv.AddItem(Item::GetRandomItem());
+		if (GetKey(olc::Key::CTRL).bHeld && GetKey(olc::Key::NP_SUB).bPressed) player->DealDamage(1);
 		//if (GetKey(olc::Key::CTRL).bHeld && GetKey(olc::Key::NP_ADD).bPressed) player->health.ModifyValue(1);
 
 		turnManager.Update(this, fElapsedTime);

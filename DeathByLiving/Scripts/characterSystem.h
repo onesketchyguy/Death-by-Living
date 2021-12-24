@@ -88,7 +88,11 @@ public: // Character stuff
 			}
 		}
 
-		health.ModifyValue(-damage);
+		if (damage > 0) 
+		{
+			health.ModifyValue(-damage);
+			AudioSystem::GetInstance()->PlayClip("Data/Hit_Hurt.wav");
+		}
 	}
 
 	void StartTurn() { actionTokens = maxTokens; }
@@ -125,9 +129,9 @@ public: // Character stuff
 		else // Handle AI Stuff
 		{
 			// FIXME: Implement AI
-			if (aiThinking >= AI_THINK_TIME)
+			if (aiThinking <= 0.0f)
 			{
-				aiThinking = 0.0f;
+				aiThinking = AI_THINK_TIME + ((rand() % 100)/100.0f);
 				// FIXME: use character.moveRand
 
 				if (canMoveDiagonally) 
@@ -163,7 +167,7 @@ public: // Character stuff
 			}
 			else
 			{
-				aiThinking += elapsedTime;
+				aiThinking -= elapsedTime;
 			}
 		}
 	}
@@ -181,8 +185,9 @@ public: // Character stuff
 
 			pos.x += xDir;
 			pos.y += yDir;
-		}
 
+			AudioSystem::GetInstance()->PlayClip("Data/Move.wav");
+		}
 	}
 
 	void Draw(olc::PixelGameEngine* pge, float deltaTime) 

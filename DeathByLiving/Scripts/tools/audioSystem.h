@@ -6,29 +6,20 @@ extern bool AUDIO_ENABLED;
 
 class AudioSystem
 {
-public:	
+public:
 	AudioSystem();
 	~AudioSystem();
+
+	static void DestroyInstance() { if (instance != nullptr) delete instance; }
+	static void CreateInstance() { instance = new AudioSystem(); }
+	static AudioSystem* GetInstance() { return instance; }
+
+private:
+	static AudioSystem* instance;
 
 public:
 	void LoadClip(const char* clipLocation);
 	void PlayClip(const char* clipLocation);
-
-public: // TEST CASE STUFF
-	void LoadTestCases() 
-	{
-		const char* clipA = "Data/SampleA.wav";
-
-		LoadClip(clipA);
-	}
-
-	void RunTestCase() 
-	{
-		const char* clipA = "Data/SampleA.wav";
-
-		PlayClip(clipA);
-	}
 };
-
 
 #endif
