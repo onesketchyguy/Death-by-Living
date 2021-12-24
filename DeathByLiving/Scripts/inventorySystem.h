@@ -194,7 +194,7 @@ public:
 		}
 	}
 
-	void SetDrawing(bool value, olc::PixelGameEngine* pge) { draw = value; pge->EnableLayer(drawLayer, value); }
+	void SetDrawing(olc::PixelGameEngine* pge, bool value) { draw = value; pge->EnableLayer(drawLayer, value); }
 	bool GetDrawing() { return draw; }
 
 	Item* GetUsedItem() { return output; }
@@ -205,7 +205,7 @@ public:
 	};
 
 	Item& GetArmor() { return equippedArmor; }
-	Item& GetWeapon() { return equippedWeapon; }	
+	Item& GetWeapon() { return equippedWeapon; }
 
 	void SetPosition(int x, int y)
 	{
