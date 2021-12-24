@@ -1,6 +1,7 @@
 #pragma once
 
 extern bool AUDIO_ENABLED;
+AudioSystem audio;
 
 #include "../lib/olcPixelGameEngine.h"
 #include "tools/audioSystem.h"
@@ -11,8 +12,7 @@ extern bool AUDIO_ENABLED;
 
 class Game : public olc::PixelGameEngine
 {
-private: // Global variables
-	AudioSystem audio;
+private: // Global variables	
 	std::vector<Character*> characters;
 	Character* player;	
 

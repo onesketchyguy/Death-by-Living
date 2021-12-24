@@ -2,5 +2,5 @@
 {"name":"Skeleton","ap":3,"attRange":1,"hCell":1,"vCell":0,"hp":5,"movDiag":true,"movRand":false,"overlap":false,"randA":false,"randW":true,"rt":5,"summonInt":0,"summons":"","fleeRange":0}
 {"name":"Slime","ap":2,"attRange":0,"hCell":2,"vCell":0,"hp":3,"movDiag":false,"movRand":true,"overlap":true,"randA":false,"randW":false,"rt":0,"summonInt":0,"summons":"","fleeRange":0}
 {"name":"Ranger","ap":3,"attRange":5,"hCell":3,"vCell":0,"hp":5,"movDiag":false,"movRand":false,"overlap":false,"randA":false,"randW":true,"rt":0,"summonInt":0,"summons":"","fleeRange":3}
-{"name":"Necromancer","ap":5,"attRange":5,"hCell":4,"vCell":0,"hp":5,"movDiag":false,"movRand":true,"overlap":false,"randA":false,"randW":false,"rt":0,"summonInt":0,"summons":"","fleeRange":1}
+{"name":"Necromancer","ap":5,"attRange":5,"hCell":4,"vCell":0,"hp":5,"movDiag":false,"movRand":true,"overlap":false,"randA":false,"randW":false,"rt":0,"summonInt":10,"summons":"Skeleton","fleeRange":1}
 {"name":"Warrior","ap":4,"attRange":1,"hCell":5,"vCell":0,"hp":1,"movDiag":false,"movRand":false,"overlap":false,"randA":true,"randW":true,"rt":0,"summonInt":0,"summons":"","fleeRange":0}
