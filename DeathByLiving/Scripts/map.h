@@ -9,9 +9,26 @@ public:
     int layers = 0;
     std::vector<std::vector<char>> matrix;
     std::map<char, int> keys = { {' ',0}, { '.',1 }, { ',',2 }, { ':',3 }, { ';',4 }, { '%',5 }, { '&',6 }, { '#',7 } };
-    
+    std::map<std::string, int> room_tally = {
+        { "0001", 1 },
+        { "0010", 1 },
+        { "0011", 1 },
+        { "0100", 1 },
+        { "0101", 1 },
+        { "0110", 1 },
+        { "0111", 1 },
+        { "1000", 1 },
+        { "1001", 1 },
+        { "1010", 1 },
+        { "1011", 1 },
+        { "1100", 1 },
+        { "1101", 1 },
+        { "1110", 1 },
+        { "1111", 1 }
+    };
+
     // Map
-    Map(int w, int h, int l) { width = w; height = h; for (int i = 0; i < l; i++) { AppendLayer(); } }
+    Map(int w, int h, int l) { width = w; height = h; for (int i = 0; i < l; i++) { AppendLayer(); } LoadTally(); }
     // Layer
     void EmptyLayer(int layer) { matrix[layer].clear(); }
     void ClearLayer(int layer) { matrix[layer].clear(); InitLayer(layer); }
@@ -44,11 +61,69 @@ public:
     }
 
     // File I/O
-     
-    void SaveData(std::string _dir)
+    
+    void SaveTally()
     {
         std::fstream data_file;
-        data_file.open("maps/"+_dir);
+        data_file.open("../../DeathByLiving/Data/maps/room_tally.data");
+        if (data_file.is_open())
+        {
+            std::cout << "opened" << std::endl;
+            data_file << room_tally["0001"] << std::endl;
+            data_file << room_tally["0010"] << std::endl;
+            data_file << room_tally["0011"] << std::endl;
+            data_file << room_tally["0100"] << std::endl;
+            data_file << room_tally["0101"] << std::endl;
+            data_file << room_tally["0110"] << std::endl;
+            data_file << room_tally["0111"] << std::endl;
+            data_file << room_tally["1000"] << std::endl;
+            data_file << room_tally["1001"] << std::endl;
+            data_file << room_tally["1010"] << std::endl;
+            data_file << room_tally["1011"] << std::endl;
+            data_file << room_tally["1100"] << std::endl;
+            data_file << room_tally["1101"] << std::endl;
+            data_file << room_tally["1110"] << std::endl;
+            data_file << room_tally["1111"] << std::endl;
+            data_file.close();
+        }
+        else
+        { std::ofstream new_file ("../../DeathByLiving/Data/maps/room_tally.data"); SaveTally(); }
+    }
+
+    void LoadTally()
+    {
+        std::string line;
+        std::fstream data_file;
+        data_file.open("../../DeathByLiving/Data/maps/room_tally.data");
+
+        if (data_file.is_open())
+        {
+            getline(data_file, line); line.erase(std::remove(line.begin(), line.end(), '\n'), line.end()); room_tally["0001"] = std::stoi(line);
+            getline(data_file, line); line.erase(std::remove(line.begin(), line.end(), '\n'), line.end()); room_tally["0010"] = std::stoi(line);
+            getline(data_file, line); line.erase(std::remove(line.begin(), line.end(), '\n'), line.end()); room_tally["0011"] = std::stoi(line);
+            getline(data_file, line); line.erase(std::remove(line.begin(), line.end(), '\n'), line.end()); room_tally["0100"] = std::stoi(line);
+            getline(data_file, line); line.erase(std::remove(line.begin(), line.end(), '\n'), line.end()); room_tally["0101"] = std::stoi(line);
+            getline(data_file, line); line.erase(std::remove(line.begin(), line.end(), '\n'), line.end()); room_tally["0110"] = std::stoi(line);
+            getline(data_file, line); line.erase(std::remove(line.begin(), line.end(), '\n'), line.end()); room_tally["0111"] = std::stoi(line);
+            getline(data_file, line); line.erase(std::remove(line.begin(), line.end(), '\n'), line.end()); room_tally["1000"] = std::stoi(line);
+            getline(data_file, line); line.erase(std::remove(line.begin(), line.end(), '\n'), line.end()); room_tally["1001"] = std::stoi(line);
+            getline(data_file, line); line.erase(std::remove(line.begin(), line.end(), '\n'), line.end()); room_tally["1010"] = std::stoi(line);
+            getline(data_file, line); line.erase(std::remove(line.begin(), line.end(), '\n'), line.end()); room_tally["1011"] = std::stoi(line);
+            getline(data_file, line); line.erase(std::remove(line.begin(), line.end(), '\n'), line.end()); room_tally["1100"] = std::stoi(line);
+            getline(data_file, line); line.erase(std::remove(line.begin(), line.end(), '\n'), line.end()); room_tally["1101"] = std::stoi(line);
+            getline(data_file, line); line.erase(std::remove(line.begin(), line.end(), '\n'), line.end()); room_tally["1110"] = std::stoi(line);
+            getline(data_file, line); line.erase(std::remove(line.begin(), line.end(), '\n'), line.end()); room_tally["1111"] = std::stoi(line);
+            data_file.close();
+        }
+    }
+
+    void SaveData(std::string _dir)
+    {
+        bool success = false;
+        std::fstream data_file;
+        std::string file_path = "Data/maps/"+_dir+"-"+std::to_string(room_tally[_dir])+".map";
+        std::cout << file_path << std::endl;
+        data_file.open(file_path);
         if (data_file.is_open())
         {
             for (int l = 0; l < layers; l++)
@@ -60,16 +135,20 @@ public:
                 }
                 data_file << '>' << std::endl;
             }
+            data_file.close();
+            success = true;
         }
         else
-        { std::ofstream new_file (_dir); SaveData(_dir); }
+        { std::ofstream new_file (file_path); SaveData(_dir); }
+        
+        if (success) room_tally[_dir]++;
     }
 
     void LoadData(std::string _dir)
     {
         std::string line;
         std::fstream data_file;
-        data_file.open("maps/"+_dir);
+        data_file.open("Data/maps/"+_dir+".map");
         if (data_file.is_open())
         {
             int layer = 0, y = 0;

@@ -24,17 +24,37 @@ public:
     void GenerateMatrix()
     {
         ClearMatrix();
-        GenerateCorridors(8, 8);
+        GenerateCorridors(8, 8, 4, 4);
         TileMatrix();
     }
 
-    void GenerateCorridors(int sx, int sy)
+    void GenerateCorridors(int sx, int sy, int min_blobs=1, int blob_size=16)
     {
-        int north=rand()%int(float(height/2)*0.8), south=rand()%int(float(height/2)*0.8), east=rand()%int(float(width/2)*0.8), west=rand()%int(float(width/2)*0.8);
-        for (int n = 0; n < north; n++) { matrix[(sy-n)*width+sx] = "1111"; } if (rand()%100 < 50) { GenerateBlob(sx, sy-(north-1), rand()%16); }
-        for (int w = 0; w < west; w++)  { matrix[sy*width+(sx-w)] = "1111"; } if (rand()%100 < 50) { GenerateBlob(sx-(west-1),  sy, rand()%16); }
-        for (int e = 0; e < east; e++)  { matrix[sy*width+(sx+e)] = "1111"; } if (rand()%100 < 50) { GenerateBlob(sx+(east-1),  sy, rand()%16); }
-        for (int s = 0; s < south; s++) { matrix[(sy+s)*width+sx] = "1111"; } if (rand()%100 < 50) { GenerateBlob(sx, sy+(south-1), rand()%16); }
+        int blob_count = 0;
+        std::vector<int> blobs = {1, 2, 4, 8};
+        int north=rand()%int((height)*0.4),
+            south=rand()%int((height)*0.4),
+            east=rand()%int((width)*0.4),
+            west=rand()%int((width)*0.4);
+        for (int n = 0; n < north; n++) { matrix[(sy-n)*width+sx] = "1111"; } if (rand()%100 < 50) { GenerateBlob(sx, sy-north, rand()%blob_size); blob_count++; }
+        for (int w = 0; w < west; w++)  { matrix[sy*width+(sx-w)] = "1111"; } if (rand()%100 < 50) { GenerateBlob(sx-west,  sy, rand()%blob_size); blob_count++; }
+        for (int e = 0; e < east; e++)  { matrix[sy*width+(sx+e)] = "1111"; } if (rand()%100 < 50) { GenerateBlob(sx+east,  sy, rand()%blob_size); blob_count++; }
+        for (int s = 0; s < south; s++) { matrix[(sy+s)*width+sx] = "1111"; } if (rand()%100 < 50) { GenerateBlob(sx, sy+south, rand()%blob_size); blob_count++; }
+        if (blob_count < min_blobs)
+        {
+            for (int b = 0; b < min_blobs; b++)
+            {
+                int choice = rand()%blobs.size();
+                switch (choice)
+                {
+                    case 1 : { GenerateBlob(sx, sy-north, rand()%blob_size); } break;
+                    case 2 : { GenerateBlob(sx-west,  sy, rand()%blob_size); } break;
+                    case 4 : { GenerateBlob(sx+east,  sy, rand()%blob_size); } break;
+                    case 8 : { GenerateBlob(sx, sy+south, rand()%blob_size); } break;
+                }
+                blobs.erase(blobs.begin()+choice);
+            }
+        }
     }
 
     void GenerateBlob(int sx, int sy, int room_limit)

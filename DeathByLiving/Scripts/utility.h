@@ -1,3 +1,11 @@
+#ifdef _WIN32
+#include <direct.h>
+#define GetCurrentDir _getcwd
+#else
+#include <unistd.h>
+#define GetCurrentDir getcwd
+#endif
+
 #pragma once
 #ifndef UTIL_H_
 #define UTIL_H_
@@ -59,6 +67,15 @@ namespace util
 
         return size;
     }
+
+    std::string GetCWD()
+        {
+            char buff[FILENAME_MAX];
+            GetCurrentDir(buff, FILENAME_MAX);
+            std::string _dir(buff);
+            return _dir;
+        }
+
 }
 
 #endif

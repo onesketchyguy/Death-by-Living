@@ -7,16 +7,17 @@ const int DO_ATTACK_COST = 3;
 const int MOVE_COST = 1;
 
 #include "../lib/olcPixelGameEngine.h"
-#include "tools/audioSystem.h"
+//#include "tools/audioSystem.h"
 #include "inventorySystem.h"
 #include "healthSystem.h"
 #include "characterSystem.h"
 #include "turnManager.h"
+#include "levelManager.h"
 
 class Game : public olc::PixelGameEngine
 {
 private: // Global variables
-	AudioSystem audio;
+	//AudioSystem audio;
 	Inventory inv;
 	Character* player;
 	Character* enemy;
@@ -25,9 +26,11 @@ private: // Global variables
 	float aiThinking = 0.0f;
 
 	TurnManager turnManager;
+    LevelManager levelManager = LevelManager();
 
 	olc::Renderable* characterSheet = nullptr;
 	olc::Renderable* uiSheet = nullptr;
+    olc::Renderable* tileSheet = nullptr;
 
 	olc::vi2d screenMid;
 
@@ -41,6 +44,7 @@ public:
 	~Game() 
 	{
 		delete characterSheet;
+        delete tileSheet;
 		delete uiSheet;
 		delete player;
 		delete enemy;
@@ -55,7 +59,10 @@ public:
 
 		screenMid = olc::vi2d{(ScreenWidth() >> 1), (ScreenHeight() >> 1) };
 
-		audio.LoadTestCases();
+		//audio.LoadTestCases();
+
+        tileSheet = new olc::Renderable();
+        tileSheet->Load("Data/tiles-16x16.png");
 
 		uiSheet = new olc::Renderable();
 		uiSheet->Load("Data/ui.png");
@@ -83,9 +90,8 @@ public:
 
 	bool OnUserUpdate(float fElapsedTime) override
 	{
-		Clear(olc::BLANK);
+		//Clear(olc::BLANK);
 
-		if (GetKey(olc::Key::CTRL).bHeld && GetKey(olc::Key::TILDE).bPressed) audio.RunTestCase();
 		if (GetKey(olc::Key::CTRL).bHeld && GetKey(olc::Key::I).bPressed) 
 		{
 			if (inv.AddItem(Item::GetRandomItem())) 
@@ -99,7 +105,7 @@ public:
 		}
 		else if (GetKey(olc::Key::I).bPressed) inv.SetDrawing(!inv.GetDrawing(), this);
 
-		if (GetKey(olc::Key::CTRL).bHeld && GetKey(olc::Key::TILDE).bPressed) audio.RunTestCase();
+		//if (GetKey(olc::Key::CTRL).bHeld && GetKey(olc::Key::TILDE).bPressed) audio.RunTestCase();
 		
 		if (GetKey(olc::Key::CTRL).bHeld && GetKey(olc::Key::NP_SUB).bPressed)  player->health.ModifyValue(-1);
 		if (GetKey(olc::Key::CTRL).bHeld && GetKey(olc::Key::NP_ADD).bPressed) player->health.ModifyValue(1);
@@ -125,6 +131,13 @@ public:
 			inv.ClearUseItem();
 		}
 
+        // World Interaction
+        bool load_map = false;
+        if (GetKey(olc::NP8).bPressed) { if (levelManager.room_y > 0)                           { levelManager.room_y--; load_map = true; } }
+        if (GetKey(olc::NP2).bPressed) { if (levelManager.room_y < levelManager.world.height-1) { levelManager.room_y++; load_map = true; } }
+        if (GetKey(olc::NP4).bPressed) { if (levelManager.room_x > 0)                           { levelManager.room_x--; load_map = true; } }
+        if (GetKey(olc::NP6).bPressed) { if (levelManager.room_x < levelManager.world.width-1)  { levelManager.room_x++; load_map = true; } }
+        if (load_map) { levelManager.LoadMap(); levelManager.DrawRoom(this, tileSheet); }
 
 		inv.Update(this);
 		player->Draw(this, fElapsedTime);

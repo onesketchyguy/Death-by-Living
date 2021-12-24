@@ -14,7 +14,7 @@ public:
     Button(float X, float Y, float W, float H, float fnt, std::string txt) { x=X; y=Y; width=W; height=H; font=fnt; text=txt; }
     
     void SetText(std::string txt) {text = txt;}
-    float TextX() { return float( (x + ((width/2.0)) - (float(text.size())*(4.0*font))) ); }
-    float TextY() { return float( y + (height/2.0) - (4.0*font) ); }
+    float TextX() { return float( ((x+1) + ((width/2.0)) - (float(text.size())*(4.0*font))) ); }
+    float TextY() { return float( (y+1) + (height/2.0) - (4.0*font) ); }
     bool IsColliding(int X, int Y) { return ((X > x && X < x+width) && (Y > y && Y < y+height)); }
 };

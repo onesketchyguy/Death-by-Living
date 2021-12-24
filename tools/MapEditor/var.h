@@ -2,11 +2,11 @@ namespace var
 {
 
     int tile = 16;
-    int room_width = 16;
-    int room_height = 16;
+    int room_width = 21;
+    int room_height = 15;
     int world_width = 16;
     int world_height = 16;
-    int width = 512;
+    int width = 592;
     int height = 256;
     int pixel_size = 2;
 
