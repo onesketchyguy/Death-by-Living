@@ -1,6 +1,8 @@
 #include "audioSystem.h"
 #include <iostream>
 
+AudioSystem* AudioSystem::instance = nullptr;
+
 #ifndef NO_AUDIO
 
 #include <unordered_map>
@@ -37,18 +39,30 @@ void AudioSystem::LoadClip(const char* clipLocation)
 	SoLoud::Wav* wavClip = new SoLoud::Wav();   // One wave file
 	wavClip->load(clipLocation); // Load a wave
 
-	clipMap.emplace(clipLocation, wavClip); // Add new clip to clipMap
+	if (wavClip->getLength() > 0.0) clipMap.emplace(clipLocation, wavClip); // Add new clip to clipMap
+	else std::cout << "Error: Unable to load clip" << std::endl; // Did not find clip
 }
 
 void AudioSystem::PlayClip(const char* clipLocation)
 {
 	if (AUDIO_ENABLED == false) return;
-
-	// Verify the clip exists before trying to play it
 	std::unordered_map<std::string, SoLoud::Wav*>::const_iterator got = clipMap.find(clipLocation);
 
-	if (got == clipMap.end()) std::cout << "Error: Clip not found" << std::endl; // Did not find clip
-	else soLoud.play(*clipMap[clipLocation]); // Found clip, play the wave
+	if (got == clipMap.end())
+	{
+		std::cout << "Attempting to load clip..." << std::endl;
+		LoadClip(clipLocation);
+
+		got = clipMap.find(clipLocation);
+
+		if (got == clipMap.end()) 
+		{
+			std::cout << "Error: Clip not found" << std::endl; // Did not find clip
+			return;
+		}
+	}	
+
+	soLoud.play(*clipMap[clipLocation]); // Found clip, play the wave
 
 	//int x = soLoud.play(gWave); // Grab the handle
 	//soLoud.setPan(x, -0.2f);    // Use handle to adjust panning

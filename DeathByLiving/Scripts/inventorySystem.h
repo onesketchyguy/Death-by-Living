@@ -110,6 +110,8 @@ private:
 					{
 						holdingItem = item;
 						item = Item::NULL_ITEM;
+
+						AudioSystem::GetInstance()->PlayClip("Data/Blip_Select2.wav");
 					}
 				}
 				else 
@@ -133,6 +135,8 @@ private:
 				{
 					item = holdingItem;
 					holdingItem = Item::NULL_ITEM;
+
+					AudioSystem::GetInstance()->PlayClip("Data/Blip_Select.wav");
 				}
 				else 
 				{
@@ -166,6 +170,8 @@ public:
 				equippedArmor = newItem;
 			}
 
+			AudioSystem::GetInstance()->PlayClip("Data/Blip_Select.wav");
+
 			return equippedArmor.name == newItem.name;
 		}
 
@@ -176,6 +182,8 @@ public:
 				equippedWeapon = newItem;
 			}
 
+			AudioSystem::GetInstance()->PlayClip("Data/Blip_Select.wav");
+
 			return equippedWeapon.name == newItem.name;
 		}
 
@@ -184,6 +192,8 @@ public:
 		if (slot != -1)
 		{
 			items[slot] = newItem;
+
+			AudioSystem::GetInstance()->PlayClip("Data/Blip_Select.wav");
 
 			return true;
 		}
@@ -194,7 +204,7 @@ public:
 		}
 	}
 
-	void SetDrawing(bool value, olc::PixelGameEngine* pge) { draw = value; pge->EnableLayer(drawLayer, value); }
+	void SetDrawing(olc::PixelGameEngine* pge, bool value) { draw = value; pge->EnableLayer(drawLayer, value); }
 	bool GetDrawing() { return draw; }
 
 	Item* GetUsedItem() { return output; }
@@ -205,7 +215,7 @@ public:
 	};
 
 	Item& GetArmor() { return equippedArmor; }
-	Item& GetWeapon() { return equippedWeapon; }	
+	Item& GetWeapon() { return equippedWeapon; }
 
 	void SetPosition(int x, int y)
 	{
@@ -241,6 +251,8 @@ public:
 				{
 					holdingItem = Item::NULL_ITEM;
 
+					AudioSystem::GetInstance()->PlayClip("Data/Drop_Item.wav");
+
 					droppingItem = false;
 				}
 			}
@@ -270,7 +282,7 @@ public:
 		pge->DrawPartialWarpedDecal(inventoryUI->Decal(), positions, olc::vi2d{ FRAME_SIZE*2,0 }, olc::vi2d{ FRAME_SIZE, FRAME_SIZE }, olc::GREY);
 		pge->DrawStringDecal(windowPosition + olc::vf2d{ 8, 4 }, "INVENTORY", olc::WHITE, olc::vf2d{0.5,0.5});
 
-	std::string tooltip = "";
+		std::string tooltip = "";
 
 		for (int x = 0; x < HORIZONTAL_CELLS; x++)
 		{			
@@ -293,7 +305,12 @@ public:
 			DrawHoldingItem(pge);
 
 			// If we tried to release the item, but it's still in our hands
-			if (pge->GetMouse(0).bReleased) droppingItem = true;
+			if (pge->GetMouse(0).bReleased)
+			{
+				droppingItem = true;
+
+				AudioSystem::GetInstance()->PlayClip("Data/Blip_Select3.wav");
+			}
 		}
 
 		if (tooltip.empty() == false) 

@@ -61,6 +61,7 @@ public:
 
 	void CycleTurn() 
 	{
+		if (currentTurn != nullptr) currentTurn->EndTurn();
 		currentTurn = GetNextCharacterTurn();
 
 		if (currentTurn == nullptr)
@@ -73,6 +74,17 @@ public:
 		currentTurn->StartTurn();
 
 		if (currentTurn->health.Empty() && characters.size() > 1) CycleTurn();
+	}
+
+	void Update(olc::PixelGameEngine* pge, float elapsedTime)
+	{
+		for (auto& c : characters) c->Draw(pge, elapsedTime);
+
+		// Turn implementation
+		auto currentTurn = GetCurrentCharacterTurn();
+		if (currentTurn == nullptr) CycleTurn();
+		else if (currentTurn->actionTokens <= 0) CycleTurn();
+		else currentTurn->HandleTurn(pge, elapsedTime);
 	}
 
 	Character* GetCurrentCharacterTurn()

@@ -2,10 +2,6 @@
 
 extern bool AUDIO_ENABLED;
 
-const int DRINK_POTION_COST = 2;
-const int DO_ATTACK_COST = 3;
-const int MOVE_COST = 1;
-
 #include "../lib/olcPixelGameEngine.h"
 //#include "tools/audioSystem.h"
 #include "inventorySystem.h"
@@ -17,22 +13,16 @@ const int MOVE_COST = 1;
 class Game : public olc::PixelGameEngine
 {
 private: // Global variables
-	//AudioSystem audio;
+	AudioSystem audio;
 	Inventory inv;
 	Character* player;
 	Character* enemy;
-
-	const float AI_THINK_TIME = 0.5f;
-	float aiThinking = 0.0f;
 
 	TurnManager turnManager;
     LevelManager levelManager = LevelManager();
 
 	olc::Renderable* characterSheet = nullptr;
 	olc::Renderable* uiSheet = nullptr;
-    olc::Renderable* tileSheet = nullptr;
-
-	olc::vi2d screenMid;
 
 public:
 	Game()
@@ -46,8 +36,9 @@ public:
 		delete characterSheet;
         delete tileSheet;
 		delete uiSheet;
-		delete player;
-		delete enemy;
+		AudioSystem::DestroyInstance();
+		
+		for (auto c : characters) delete c;
 	}
 
 public:
@@ -57,31 +48,35 @@ public:
 
 		srand(time(0));
 
-		screenMid = olc::vi2d{(ScreenWidth() >> 1), (ScreenHeight() >> 1) };
+		AudioSystem::CreateInstance();		
 
-		//audio.LoadTestCases();
-
-        tileSheet = new olc::Renderable();
-        tileSheet->Load("Data/tiles-16x16.png");
+		audio.LoadTestCases();
 
 		uiSheet = new olc::Renderable();
 		uiSheet->Load("Data/ui.png");
 
-		inv.Initialize(this, uiSheet);
-		inv.SetDrawing(true, this);
-		inv.SetPosition(ScreenWidth(), ScreenHeight());
-
 		characterSheet = new olc::Renderable();
 		characterSheet->Load("Data/characterSheet.png");
+		
+		std::vector<CharacterTemplate> cTemplates;
+		CharacterTemplate::LoadJsonData(cTemplates);
 
-		player = new Character(characterSheet, inv.GetArmor(), inv.GetWeapon());
-		player->pos = olc::vi2d{ 0, 0 };
+		for (auto& temp : cTemplates)
+		{
+			Character* c = new Character(characterSheet);
+			GetCharacterFromTemplate(c, temp);
 
-		enemy = new Character(characterSheet, inv.GetArmor(), inv.GetWeapon(), 1, 0);
-		enemy->pos = olc::vi2d{2, 1 };
+			if (c->name == "Player") 
+			{
+				player = c;
+				player->inv.Initialize(this, uiSheet);
+				player->inv.SetDrawing(this, true);
+				player->inv.SetPosition(ScreenWidth(), ScreenHeight());
+			}
 
-		turnManager.AddCharacter(player);
-		turnManager.AddCharacter(enemy);
+			turnManager.AddCharacter(c);
+			characters.push_back(c);
+		}
 
 		turnManager.SetTurnOrder();
 
@@ -92,6 +87,7 @@ public:
 	{
 		//Clear(olc::BLANK);
 
+		if (GetKey(olc::Key::CTRL).bHeld && GetKey(olc::Key::TILDE).bPressed) audio.RunTestCase();
 		if (GetKey(olc::Key::CTRL).bHeld && GetKey(olc::Key::I).bPressed) 
 		{
 			if (inv.AddItem(Item::GetRandomItem())) 
@@ -105,7 +101,7 @@ public:
 		}
 		else if (GetKey(olc::Key::I).bPressed) inv.SetDrawing(!inv.GetDrawing(), this);
 
-		//if (GetKey(olc::Key::CTRL).bHeld && GetKey(olc::Key::TILDE).bPressed) audio.RunTestCase();
+		if (GetKey(olc::Key::CTRL).bHeld && GetKey(olc::Key::TILDE).bPressed) audio.RunTestCase();
 		
 		if (GetKey(olc::Key::CTRL).bHeld && GetKey(olc::Key::NP_SUB).bPressed)  player->health.ModifyValue(-1);
 		if (GetKey(olc::Key::CTRL).bHeld && GetKey(olc::Key::NP_ADD).bPressed) player->health.ModifyValue(1);
@@ -131,13 +127,6 @@ public:
 			inv.ClearUseItem();
 		}
 
-        // World Interaction
-        bool load_map = false;
-        if (GetKey(olc::NP8).bPressed) { if (levelManager.room_y > 0)                           { levelManager.room_y--; load_map = true; } }
-        if (GetKey(olc::NP2).bPressed) { if (levelManager.room_y < levelManager.world.height-1) { levelManager.room_y++; load_map = true; } }
-        if (GetKey(olc::NP4).bPressed) { if (levelManager.room_x > 0)                           { levelManager.room_x--; load_map = true; } }
-        if (GetKey(olc::NP6).bPressed) { if (levelManager.room_x < levelManager.world.width-1)  { levelManager.room_x++; load_map = true; } }
-        if (load_map) { levelManager.LoadMap(); levelManager.DrawRoom(this, tileSheet); }
 
 		inv.Update(this);
 		player->Draw(this, fElapsedTime);
@@ -180,11 +169,13 @@ public:
 		}
 
 		// Draw available actionTokens
-		for (size_t i = 0; i < 3; i++)
+		for (size_t i = 0; i < player->GetMaxTokens(); i++)
 		{
+			float x = 8.0f * (i % 6);
+			float y = 8.0f * (i / 6);
 			bool isFilledToken = player->actionTokens > i;
 
-			DrawPartialDecal(olc::vf2d{ 8.0f*i, 0}, olc::vi2d{ 8, 8 }, uiSheet->Decal(),
+			DrawPartialDecal(olc::vf2d{ x, y}, olc::vi2d{ 8, 8 }, uiSheet->Decal(),
 				olc::vi2d{ 16 * 4, 0}, olc::vi2d{16,16}, (isFilledToken ? olc::WHITE : olc::VERY_DARK_GREY));
 		}
 

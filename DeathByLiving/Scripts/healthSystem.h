@@ -7,7 +7,6 @@
 #include "items.h"
 #include "utility.h"
 
-const int START_HEALTH = 20;
 const float SHOW_HEALTH_DIFF_TIME = 1.0f;
 
 struct HealthContainer 
@@ -27,6 +26,8 @@ public:
 		health += mod;
 		showTime = SHOW_HEALTH_DIFF_TIME;
 	}
+
+	void SetValue(int value) { prevHealth = health = value; }
 
 	bool Empty() { return health <= 0;  }
 
