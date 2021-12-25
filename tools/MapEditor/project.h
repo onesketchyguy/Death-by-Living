@@ -228,19 +228,15 @@ public:
                 DrawPartialDecal({ X,Y }, tileset.Decal(), { tx,ty }, { 16.0,16.0 }, { 3.0,3.0 }, color0);
                 if (mx > X && mx < X+t && my > Y && my < Y+t)
                 {
-                    DrawPartialDecal({ X,Y }, tileset.Decal(), { tx,ty }, { 16.0,16.0 }, { 3.0,3.0 });
+                    float sX=X+(t/4), sY=Y+(t/4);
+                    DrawPartialDecal({ sX,sY }, tileset.Decal(), { tx,ty }, { 16.0,16.0 }, { 1.5,1.5 });
                     if (GetMouse(0).bPressed)
                     {
-                        switch (count)
+                        auto iter = map.keys.begin();
+                        while (iter != map.keys.end())
                         {
-                            case 0 : { selected = ' '; } break;
-                            case 1 : { selected = '.'; } break;
-                            case 2 : { selected = ','; } break;
-                            case 3 : { selected = ':'; } break;
-                            case 4 : { selected = ';'; } break;
-                            case 5 : { selected = '%'; } break;
-                            case 6 : { selected = '&'; } break;
-                            case 7 : { selected = '#'; } break;
+                            if (iter->second == count) { selected = iter->first; break; }
+                            ++iter;
                         }
                     }
                 }
