@@ -16,15 +16,21 @@ public:
 public:
 
     bool tile_mode = true;
-    char selected = ' ';
+    
     int layer = 0;
     int room_x = 8;
     int room_y = 8;
+    
+    char selected = ' ';
     std::string _tile = "gravel";
-    Entry map_dir = Entry(var::room_width*var::tile, 33, 1.0, "test.map", 32);
+    
+    Entry map_dir = Entry(0, var::height-20, 1.0, "test.map", 42);
+
     Map map = Map(var::room_width, var::room_height, 3);
     World world = World(16, 16);
+    
     olc::Renderable tileset;
+    
     olc::Pixel color0 = olc::Pixel(128, 128, 128, 64);
     olc::Pixel color1 = olc::Pixel(  4,   4,   6);
     olc::Pixel color2 = olc::Pixel(  8,   8,  12);
@@ -145,30 +151,26 @@ public:
         return c;
     }
 
+    void GenerateLevel()
+    {
+        world.GenerateMatrix();
+        for (int i = 0; i < world.matrix.size(); i++)
+        {
+            std::string room = world.matrix[i];
+            if (room != "0000" && room.length() == 4) { world.matrix[i] = world.matrix[i]+"-"+std::to_string(rand()%map.room_tally[room]); }
+        }
+        LoadMap();
+    }
+
     void LoadMap()
     {
         std::string _dir = world.matrix[room_y*world.width+room_x];
-        map_dir.text=_dir+"-0.map"; map_dir.cursor=map_dir.text.length();
-        map.LoadData(_dir, 0);
+        map_dir.text=_dir+".map"; map_dir.cursor=map_dir.text.length();
+        map.LoadData(_dir);
     }
 
-    void DrawButton(Button b)
-    {
-        DrawStringDecal({ b.TextX(),b.TextY() }, b.text, color6, {b.font, b.font});
-        if (b.IsColliding(GetMouseX(), GetMouseY())) { DrawRect(b.x, b.y, b.width, b.height, color5); return; }
-        DrawRect(b.x, b.y, b.width, b.height, color4);
-    }
-
-    void DrawEntry(Entry e)
-    {
-        float x = e.x+(float(e.cursor)*(8.0*e.font));
-        float y = e.y-(e.font*4.0);
-        FillRect(e.x, y, e.max_chars*(8.0*e.font), 16.0*e.font, color1);
-        DrawRect(e.x, y, e.max_chars*(8.0*e.font), 16.0*e.font, color5);
-        DrawStringDecal({ e.x,e.y }, e.text, color6, {e.font, e.font});
-        FillRect(x, y, e.font*8.0, e.font*16.0, color3);
-        DrawRect(x, y, e.font*8.0, e.font*16.0, color4);
-    }
+    void DrawButton(Button b) { b.Draw(this, color2, color4, color5, color6); }
+    void DrawEntry(Entry e) { e.Draw(this, color1, color3, color4, color5, color6); }
 
     void DrawGrid()
     {
@@ -253,16 +255,18 @@ public:
 
     void DrawMinimap(int X, int Y)
     {
-        DrawRect(X-1, Y-1, 17, 17, color1);
-        DrawRect(X-1, Y-1, 17, 17, color5);
+        int scale = 3;
+        FillRect(X, Y, world.width*scale, world.height*scale, color1);
+        DrawRect(X-1, Y-1, (world.width*scale)+1, (world.height*scale)+1, color5);
         for (int y = 0; y < world.height; y++)
         {
             for (int x = 0; x < world.width; x++)
             {
-                if (world.matrix[y*world.width+x] != "0000") { Draw(x+X, y+Y, color4); }
-                if (x == room_x && y == room_y) Draw(x+X, y+Y, color6);
+                int offx=(x*scale)+X, offy=(y*scale)+Y;
+                if (world.matrix[y*world.width+x] != "0000") { DrawRect(offx, offy, scale, scale, color4); }
             }
         }
+        DrawRect((room_x*scale)+X, (room_y*scale)+Y, scale, scale, color6);
     }
 
     void DrawHUD()
@@ -280,8 +284,8 @@ public:
         DrawStringDecal({ xoff,16 }, " Tile Value: "+t, color6, { 1.0,1.0 });
 
         // Button Panel
-        FillRect(xoff+(200), 48, 55, 212, color1);
-        DrawRect(xoff+(200), 48, 55, 212, color5);
+        FillRect(xoff+(200), 48, 55, 223, color1);
+        DrawRect(xoff+(200), 48, 55, 223, color5);
 
         map_dir.Update(GetCharacter());
         DrawEntry(map_dir);
@@ -293,14 +297,14 @@ public:
         Button append_layer    = Button(xoff+(204), 126.0, 47.0, 14.0, 1.0, "Append"); DrawButton(append_layer);
         Button insert_layer    = Button(xoff+(204), 142.0, 47.0, 14.0, 1.0, "Insert"); DrawButton(insert_layer);
         Button delete_layer    = Button(xoff+(204), 158.0, 47.0, 14.0, 1.0, "Delete"); DrawButton(delete_layer);
-        Button generate        = Button(xoff+(237),  10.0,  8.0,  8.0, 0.5, "5");     DrawButton(generate);
-        Button move_up         = Button(xoff+(237),   1.0,  8.0,  8.0, 0.5, "8");     DrawButton(move_up);
-        Button move_down       = Button(xoff+(237),  19.0,  8.0,  8.0, 0.5, "2");   DrawButton(move_down);
-        Button move_left       = Button(xoff+(228),  10.0,  8.0,  8.0, 0.5, "4");   DrawButton(move_left);
-        Button move_right      = Button(xoff+(246),  10.0,  8.0,  8.0, 0.5, "6");  DrawButton(move_right);
+        Button generate        = Button(xoff+(225), 198.0,  9.0,  9.0, 0.5, "5");     DrawButton(generate);
+        Button move_up         = Button(xoff+(225), 188.0,  9.0,  9.0, 0.5, "8");     DrawButton(move_up);
+        Button move_down       = Button(xoff+(225), 208.0,  9.0,  9.0, 0.5, "2");   DrawButton(move_down);
+        Button move_left       = Button(xoff+(215), 198.0,  9.0,  9.0, 0.5, "4");   DrawButton(move_left);
+        Button move_right      = Button(xoff+(235), 198.0,  9.0,  9.0, 0.5, "6");  DrawButton(move_right);
 
         if (save_layer.IsColliding(X, Y) && GetMouse(0).bPressed) { map.SaveData(world.matrix[room_y*world.width+room_x]); map.SaveTally(); }
-        if (load_layer.IsColliding(X, Y) && GetMouse(0).bPressed) { LoadMap(); }
+        if (load_layer.IsColliding(X, Y) && GetMouse(0).bPressed) { map.LoadData(map_dir.text.substr(0, map_dir.Size()-4) ); }
         if (increment_layer.IsColliding(X, Y) && GetMouse(0).bPressed) { if (layer < map.layers-1) layer++; }
         if (decrement_layer.IsColliding(X, Y) && GetMouse(0).bPressed) { if (layer > 0) layer--; }
         if (append_layer.IsColliding(X, Y) && GetMouse(0).bPressed) { map.AppendLayer(); }
@@ -313,6 +317,8 @@ public:
         if (move_left.IsColliding(X, Y) && GetMouse(0).bPressed)  { if (room_x > 0)                   { room_x--; load_map = true; } }
         if (move_right.IsColliding(X, Y) && GetMouse(0).bPressed) { if (room_x < var::world_width-1)  { room_x++; load_map = true; } }
         if (load_map) { LoadMap(); }
+
+        DrawGrid(); DrawTileset(); DrawMinimap(var::width-52, var::height-52);
     }
 
     void Update()
@@ -327,13 +333,13 @@ public:
         if (GetKey(olc::NP4).bPressed) { if (room_x > 0)                   { room_x--; load_map = true; } }
         if (GetKey(olc::NP6).bPressed) { if (room_x < var::world_width-1)  { room_x++; load_map = true; } }
         if (load_map) { LoadMap(); }
-        if (GetKey(olc::NP5).bPressed) { world.GenerateMatrix(); LoadMap(); }
+        if (GetKey(olc::NP5).bPressed) { world.GenerateMatrix(); GenerateLevel(); }
         if (GetKey(olc::TAB).bPressed) { tile_mode = !tile_mode; }
         if (GetMouse(0).bHeld) { map.SetCell(selected, x, y, layer); }
 
         // Draw
         if (tile_mode) { DrawTiles(); } else { DrawChars(); }
-        DrawGrid(); DrawHUD(); DrawTileset(); DrawMinimap((map.width*var::tile)+210, 6);
+        DrawHUD();
     }
 
     bool OnUserCreate() override

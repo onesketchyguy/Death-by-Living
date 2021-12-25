@@ -39,4 +39,15 @@ public:
         }
     }
 
+    void Draw(olc::PixelGameEngine* pge, olc::Pixel eback, olc::Pixel cback, olc::Pixel cedge, olc::Pixel eedge, olc::Pixel etext)
+    {
+        float cx = x+(float(cursor)*(8.0*font));
+        float cy = y-(font*4.0);
+        pge->FillRect(x, cy, max_chars*(8.0*font), 16.0*font, eback);
+        pge->DrawRect(x, cy, max_chars*(8.0*font), 16.0*font, eedge);
+        pge->DrawStringDecal({ x,y }, text, etext, {font, font});
+        pge->FillRect(cx, cy, font*8.0, font*16.0, cback);
+        pge->DrawRect(cx, cy, font*8.0, font*16.0, cedge);
+    }
+
 };
