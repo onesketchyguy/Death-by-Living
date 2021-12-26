@@ -50,7 +50,7 @@ void AudioSystem::PlayClip(const char* clipLocation)
 
 	if (got == clipMap.end())
 	{
-		std::cout << "Attempting to load clip..." << std::endl;
+		std::cout << "Attempting to load clip... ";
 		LoadClip(clipLocation);
 
 		got = clipMap.find(clipLocation);
@@ -59,13 +59,10 @@ void AudioSystem::PlayClip(const char* clipLocation)
 		{
 			std::cout << "Error: Clip not found" << std::endl; // Did not find clip
 			return;
-		}
+		} else std::cout << "Success." << std::endl;
 	}	
 
-	soLoud.play(*clipMap[clipLocation]); // Found clip, play the wave
-
-	//int x = soLoud.play(gWave); // Grab the handle
-	//soLoud.setPan(x, -0.2f);    // Use handle to adjust panning
+	soLoud.play(*clipMap[clipLocation]); // Found clip, play the wave	
 }
 
 #endif // NO_AUDIO
@@ -77,13 +74,13 @@ AudioSystem::~AudioSystem() = default;
 void AudioSystem::LoadClip(const char* clipLocation)
 {
 	if (AUDIO_ENABLED == false) return;
-	std::cout << "Unable to load clip! NO_AUDIO defined in comiler" << std::endl;
+	std::cout << "Unable to load clip! NO_AUDIO defined in compiler" << std::endl;
 }
 
 void AudioSystem::PlayClip(const char* clipLocation)
 {
 	if (AUDIO_ENABLED == false) return;
-	std::cout << "Unable to play clip! NO_AUDIO defined in comiler" << std::endl;
+	std::cout << "Unable to play clip! NO_AUDIO defined in compiler" << std::endl;
 }
 
 #endif // NO_AUDIO
