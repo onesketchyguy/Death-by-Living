@@ -14,7 +14,7 @@ private:
 
 	const int FRAME_SIZE = 16;
 
-	const int CELL_SIZE = 12;
+	const int CELL_SIZE = 16;
 	const int HORIZONTAL_CELLS = 4;
 	const int VERTICAL_CELLS = 2;
 
@@ -204,7 +204,14 @@ public:
 		}
 	}
 
-	void SetDrawing(olc::PixelGameEngine* pge, bool value) { draw = value; pge->EnableLayer(drawLayer, value); }
+	void SetDrawing(olc::PixelGameEngine* pge, bool value) 
+	{ 
+		if (draw != value)
+		{
+			draw = value;
+			pge->EnableLayer(drawLayer, value);
+		}
+	}
 	bool GetDrawing() { return draw; }
 
 	Item* GetUsedItem() { return output; }

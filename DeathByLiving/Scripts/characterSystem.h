@@ -19,6 +19,9 @@ private: // Action stuff
 
 	int maxTokens = 3;
 
+public: // Map stuff
+	olc::vi2d mapSize{ 22, 15 };
+
 private: // Animation stuff
 	float elapsedTime = 0;
 	const float TAU = 2 * 3.14159;
@@ -43,6 +46,10 @@ private: // Animation stuff
 public: // AI stuff
 	const float AI_THINK_TIME = 0.5f;
 	float aiThinking = 0.0f;
+
+	const float THINK_CHAR_INTERVAL = 0.2f;
+	float thinkingTime = 0.0f;
+	int aiThinkingChar = 0;
 
 	std::string summonsCharacter = "";
 	int summonInterval = 0;
@@ -95,7 +102,11 @@ public: // Character stuff
 		}
 	}
 
-	void StartTurn() { actionTokens = maxTokens; }
+	void StartTurn() 
+	{
+		actionTokens = maxTokens;
+		aiThinking = AI_THINK_TIME;
+	}
 
 	void HandleTurn(olc::PixelGameEngine* pge, float elapsedTime)
 	{
@@ -123,8 +134,6 @@ public: // Character stuff
 
 				inv.ClearUseItem();
 			}
-
-			if (pge->GetKey(olc::Key::I).bPressed) inv.SetDrawing(pge, !inv.GetDrawing());
 		}
 		else // Handle AI Stuff
 		{
@@ -138,12 +147,6 @@ public: // Character stuff
 				{
 					int xDir = rand() % 100 > 50 ? 1 : -1;
 					int yDir = rand() % 100 > 50 ? 1 : -1;
-
-					int newPosX = GetScreenPos(pos.x + xDir, 0).x;
-					int newPosY = GetScreenPos(0, pos.y + yDir).y;
-
-					if (newPosX > pge->ScreenWidth() || newPosX <= 0) xDir = 0;
-					if (newPosY > pge->ScreenHeight() || newPosY <= 0) yDir = 0;
 					
 					MoveDir(xDir, yDir);
 				}
@@ -154,12 +157,6 @@ public: // Character stuff
 					int xDir = ran < 100 ? (ran < 50 ? 1 : -1) : 0;
 					int yDir = ran > 100 ? (ran > 150 ? 1 : -1) : 0;
 
-					int newPosX = GetScreenPos(pos.x + xDir, 0).x;
-					int newPosY = GetScreenPos(0, pos.y + yDir).y;
-
-					if (newPosX > pge->ScreenWidth() || newPosX <= 0) xDir = 0;
-					if (newPosY > pge->ScreenHeight() || newPosY <= 0) yDir = 0;
-
 					MoveDir(xDir, yDir);
 				}
 
@@ -168,6 +165,20 @@ public: // Character stuff
 			else
 			{
 				aiThinking -= elapsedTime;
+
+				std::string thinkingImage = "";
+				for (int i = 0; i < aiThinkingChar; i++) thinkingImage += '.';
+
+				if (thinkingTime >= THINK_CHAR_INTERVAL)
+				{
+					if (aiThinkingChar > 2) aiThinkingChar = 0;
+					else aiThinkingChar++;
+
+					thinkingTime = 0;
+				}
+				else thinkingTime += elapsedTime;
+
+				pge->DrawStringDecal(GetScreenPos() + olc::vi2d{ drawScaleX >> 1, -2 }, thinkingImage, olc::WHITE, olc::vf2d{1.0f,1.0f} * 0.35f);
 			}
 		}
 	}
@@ -181,6 +192,10 @@ public: // Character stuff
 	{
 		if (actionTokens > 0) 
 		{
+			if (pos.x + xDir >= mapSize.x || pos.x + xDir < 0 || 
+				pos.y + yDir >= mapSize.y || pos.y + yDir < 0 ||
+				(xDir == 0 && yDir == 0)) return;
+
 			actionTokens -= MOVE_COST;
 
 			pos.x += xDir;
@@ -196,6 +211,8 @@ public: // Character stuff
 		{
 			inv.Update(pge);
 			health.Draw(pge, pge->ScreenWidth() >> 1, 0, deltaTime);
+
+			if (pge->GetKey(olc::Key::I).bPressed) inv.SetDrawing(pge, !inv.GetDrawing());
 		}
 
 		const float RIGHT = static_cast<float>(drawScaleX);
@@ -237,7 +254,8 @@ public: // Character stuff
 			deathAnimTime = DEATH_ANIM_LENGTH;
 		}
 
-		pge->DrawPartialWarpedDecal(spriteSheet->Decal(), positions, olc::vi2d{ cellX * FRAME_SIZE, cellY * FRAME_SIZE }, olc::vi2d{ FRAME_SIZE, FRAME_SIZE }, olc::GREY);
+		pge->DrawPartialWarpedDecal(spriteSheet->Decal(), positions, olc::vi2d{ cellX * FRAME_SIZE, cellY * FRAME_SIZE }, 
+			olc::vi2d{ FRAME_SIZE, FRAME_SIZE }, (actionTokens > 0 ? olc::WHITE : olc::GREY));
 
 		delete[] positions;
 	}

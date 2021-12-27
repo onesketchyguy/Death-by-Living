@@ -41,7 +41,7 @@ public:
 
 		srand(time(0));
 
-		AudioSystem::CreateInstance();		
+		AudioSystem::CreateInstance();
 
 		uiSheet = new olc::Renderable();
 		uiSheet->Load("Data/ui.png");
@@ -65,11 +65,14 @@ public:
 				player->inv.SetPosition(ScreenWidth(), ScreenHeight());
 			}
 
+			c->pos = {rand() % c->mapSize.x, rand() % c->mapSize.y };
+
 			turnManager.AddCharacter(c);
 			characters.push_back(c);
 		}
 
 		turnManager.SetTurnOrder();
+		turnManager.SetUISheet(uiSheet);
 
 		return true;
 	}
@@ -83,17 +86,6 @@ public:
 		//if (GetKey(olc::Key::CTRL).bHeld && GetKey(olc::Key::NP_ADD).bPressed) player->health.ModifyValue(1);
 
 		turnManager.Update(this, fElapsedTime);
-
-		// Draw available actionTokens
-		for (size_t i = 0; i < player->GetMaxTokens(); i++)
-		{
-			float x = 8.0f * (i % 6);
-			float y = 8.0f * (i / 6);
-			bool isFilledToken = player->actionTokens > i;
-
-			DrawPartialDecal(olc::vf2d{ x, y}, olc::vi2d{ 8, 8 }, uiSheet->Decal(),
-				olc::vi2d{ 16 * 4, 0}, olc::vi2d{16,16}, (isFilledToken ? olc::WHITE : olc::VERY_DARK_GREY));
-		}
 
 		return true;
 	}
