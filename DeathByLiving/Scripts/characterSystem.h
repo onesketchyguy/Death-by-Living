@@ -140,6 +140,7 @@ public: // Character stuff
 			// FIXME: Implement AI
 			if (aiThinking <= 0.0f)
 			{
+				thinkingTime = 0;
 				aiThinking = AI_THINK_TIME + ((rand() % 100)/100.0f);
 				// FIXME: use character.moveRand
 
@@ -158,9 +159,7 @@ public: // Character stuff
 					int yDir = ran > 100 ? (ran > 150 ? 1 : -1) : 0;
 
 					MoveDir(xDir, yDir);
-				}
-
-
+				}				
 			}
 			else
 			{
@@ -178,7 +177,7 @@ public: // Character stuff
 				}
 				else thinkingTime += elapsedTime;
 
-				pge->DrawStringDecal(GetScreenPos() + olc::vi2d{ drawScaleX >> 1, -2 }, thinkingImage, olc::WHITE, olc::vf2d{1.0f,1.0f} * 0.35f);
+				pge->DrawStringDecal(GetScreenPos() + olc::vi2d{ drawScaleX / 3, -2 }, thinkingImage, olc::WHITE, olc::vf2d{1.0f,1.0f} * 0.35f);
 			}
 		}
 	}
