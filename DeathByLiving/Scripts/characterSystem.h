@@ -208,8 +208,7 @@ public: // Character stuff
 	void Draw(olc::PixelGameEngine* pge, float deltaTime) 
 	{
 		if (name == "Player") 
-		{
-			inv.Update(pge);
+		{			
 			health.Draw(pge, pge->ScreenWidth() >> 1, 0, deltaTime);
 
 			if (pge->GetKey(olc::Key::I).bPressed) inv.SetDrawing(pge, !inv.GetDrawing());

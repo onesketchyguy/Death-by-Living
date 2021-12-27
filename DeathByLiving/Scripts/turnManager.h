@@ -87,7 +87,7 @@ public:
 		auto currentTurn = GetCurrentCharacterTurn();
 		if (currentTurn == nullptr) CycleTurn();
 		else if (currentTurn->actionTokens <= 0) CycleTurn();
-		else 
+		else
 		{
 			currentTurn->HandleTurn(pge, elapsedTime);
 
@@ -109,16 +109,30 @@ public:
 				// FIXME: draw movement/attack positions
 				for (size_t i = 0; i < 9; i++)
 				{
-					if (i == 4) continue;
+					if (i == 4 || (currentTurn->canMoveDiagonally == false && i % 2 == 0)) continue;
 
 					int x = i % 3;
 					int y = i / 3;
 
-					x += currentTurn->pos.x - 1;
-					y += currentTurn->pos.y - 1;
+					auto screenPos = currentTurn->GetScreenPos(x + currentTurn->pos.x - 1, y + currentTurn->pos.y - 1);
+					olc::vi2d drawScale = olc::vi2d{16, 16};
+					bool mouseOver = (pge->GetMouseY() > screenPos.y && pge->GetMouseY() <= screenPos.y + drawScale.y) && (pge->GetMouseX() > screenPos.x && pge->GetMouseX() <= screenPos.x + drawScale.x);
 
-					pge->DrawPartialDecal(currentTurn->GetScreenPos(x, y), olc::vi2d{ 16,16 }, uiSheet->Decal(), olc::vi2d{ 0,0 }, olc::vi2d{ 16,16 });
+					if (mouseOver && pge->GetMouse(0).bReleased)
+					{
+						x--;
+						y--;
+
+						currentTurn->MoveDir(x, y);
+						std::cout << "Clicked x(" << std::to_string(x) <<") y(" << std::to_string(y) << ")" << std::endl;
+
+						break;
+					}
+
+					pge->DrawPartialDecal(screenPos, drawScale, uiSheet->Decal(), olc::vi2d{ 0,0 }, olc::vi2d{ 16,16 }, mouseOver ? olc::WHITE : olc::GREY);
 				}
+
+				currentTurn->inv.Update(pge);
 			}
 		}
 	}
