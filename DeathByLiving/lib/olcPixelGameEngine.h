@@ -983,6 +983,7 @@ namespace olc
 		// Draws a rectangle at (x,y) to (x+w,y+h)
 		void DrawRect(int32_t x, int32_t y, int32_t w, int32_t h, Pixel p = olc::WHITE);
 		void DrawRect(const olc::vi2d& pos, const olc::vi2d& size, Pixel p = olc::WHITE);
+		void DrawRectDecal(int32_t x, int32_t y, int32_t w, int32_t h, Pixel p);
 		// Fills a rectangle at (x,y) to (x+w,y+h)
 		void FillRect(int32_t x, int32_t y, int32_t w, int32_t h, Pixel p = olc::WHITE);
 		void FillRect(const olc::vi2d& pos, const olc::vi2d& size, Pixel p = olc::WHITE);
@@ -2033,6 +2034,14 @@ namespace olc
 		DrawLine(x + w, y, x + w, y + h, p);
 		DrawLine(x + w, y + h, x, y + h, p);
 		DrawLine(x, y + h, x, y, p);
+	}
+	
+	void PixelGameEngine::DrawRectDecal(int32_t x, int32_t y, int32_t w, int32_t h, Pixel p)
+	{
+		DrawLineDecal(olc::vi2d{ x, y }, olc::vi2d{ x + w, y }, p);
+		DrawLineDecal(olc::vi2d{ x + w, y }, olc::vi2d{ x + w, y + h }, p);
+		DrawLineDecal(olc::vi2d{ x + w, y + h }, olc::vi2d{ x, y + h }, p);
+		DrawLineDecal(olc::vi2d{ x, y + h }, olc::vi2d{ x, y }, p);
 	}
 
 	void PixelGameEngine::Clear(Pixel p)

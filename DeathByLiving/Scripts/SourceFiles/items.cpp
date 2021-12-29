@@ -27,7 +27,7 @@ const Item Item::GetWeapon(int quality, int level)
 	i.spriteCellX = 0;
 	i.spriteCellY = 1 + (rand() % ITEM::MAX_CELL_Y);
 
-	level + 1;
+	level += 1;
 	i.name = qualityNames[quality] + names[level];
 	i.durValue = (level * 2) + rand() % (1 + quality * 3);
 	i.keyValue = level + rand() % (1 + quality * 2);

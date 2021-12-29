@@ -1,3 +1,7 @@
+#pragma once
+#ifndef UTIL_H_
+#define UTIL_H_
+
 #ifdef _WIN32
 #include <direct.h>
 #define GetCurrentDir _getcwd
@@ -6,23 +10,18 @@
 #define GetCurrentDir getcwd
 #endif
 
-#pragma once
-#ifndef UTIL_H_
-#define UTIL_H_
-
 #include <iostream>
 #include <cstring>
 
 namespace util
 {
-
-    unsigned int GetSeed(std::string seedString)
+    inline unsigned int GetSeed(std::string seedString)
     {
         unsigned int value = 0;
 
         if (seedString.empty())
         {
-            value = time(0);
+            value = static_cast<int>(time(0));
         }
         else
         {
@@ -33,7 +32,7 @@ namespace util
         return value;
     }
 
-    unsigned int GetStringWidth(std::string str)
+    inline unsigned int GetStringWidth(std::string str)
     {
         unsigned int size = 0;
         unsigned int cSize = 0;
@@ -53,7 +52,7 @@ namespace util
         return size;
     }
 
-    unsigned int GetStringHeight(std::string str)
+    inline unsigned int GetStringHeight(std::string str)
     {
         unsigned int size = 0;
 
@@ -68,14 +67,13 @@ namespace util
         return size;
     }
 
-    std::string GetCWD()
-        {
-            char buff[FILENAME_MAX];
-            GetCurrentDir(buff, FILENAME_MAX);
-            std::string _dir(buff);
-            return _dir;
-        }
-
+    inline std::string GetCWD()
+    {
+        char buff[FILENAME_MAX];
+        GetCurrentDir(buff, FILENAME_MAX);
+        std::string _dir(buff);
+        return _dir;
+    }
 }
 
 #endif

@@ -24,7 +24,7 @@ public: // Map stuff
 
 private: // Animation stuff
 	float elapsedTime = 0;
-	const float TAU = 2 * 3.14159;
+	const float TAU = 2.0f * 3.14159f;
 
 	int drawScaleX = 16;
 	int drawScaleY = 16;

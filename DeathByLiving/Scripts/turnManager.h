@@ -107,7 +107,7 @@ public:
 				}
 
 				// FIXME: draw movement/attack positions
-				for (size_t i = 0; i < 9; i++)
+				for (int i = 0; i < 9; i++)
 				{
 					if (i == 4 || (currentTurn->canMoveDiagonally == false && i % 2 == 0)) continue;
 
