@@ -10,13 +10,14 @@ bool AUDIO_ENABLED = true;
 
 int main() 
 {
+/*
 #ifdef NDEBUG
 	ShowWindow(GetConsoleWindow(), SW_HIDE);
 #endif // NDEBUG
 #ifndef NDEBUG
 	ShowWindow(GetConsoleWindow(), SW_SHOW);
 #endif // !NDEBUG
-
+*/
 	SettingsData settings;
 	SettingsData::LoadJsonData(settings);
 

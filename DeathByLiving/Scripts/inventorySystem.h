@@ -111,7 +111,7 @@ private:
 						holdingItem = item;
 						item = Item::NULL_ITEM;
 
-						AudioSystem::GetInstance()->PlayClip("Data/Blip_Select2.wav");
+						//AudioSystem::GetInstance()->PlayClip("Data/Blip_Select2.wav");
 					}
 				}
 				else 
@@ -136,7 +136,7 @@ private:
 					item = holdingItem;
 					holdingItem = Item::NULL_ITEM;
 
-					AudioSystem::GetInstance()->PlayClip("Data/Blip_Select.wav");
+					//AudioSystem::GetInstance()->PlayClip("Data/Blip_Select.wav");
 				}
 				else 
 				{
@@ -170,7 +170,7 @@ public:
 				equippedArmor = newItem;
 			}
 
-			AudioSystem::GetInstance()->PlayClip("Data/Blip_Select.wav");
+			//AudioSystem::GetInstance()->PlayClip("Data/Blip_Select.wav");
 
 			return equippedArmor.name == newItem.name;
 		}
@@ -182,7 +182,7 @@ public:
 				equippedWeapon = newItem;
 			}
 
-			AudioSystem::GetInstance()->PlayClip("Data/Blip_Select.wav");
+			//AudioSystem::GetInstance()->PlayClip("Data/Blip_Select.wav");
 
 			return equippedWeapon.name == newItem.name;
 		}
@@ -193,7 +193,7 @@ public:
 		{
 			items[slot] = newItem;
 
-			AudioSystem::GetInstance()->PlayClip("Data/Blip_Select.wav");
+			//AudioSystem::GetInstance()->PlayClip("Data/Blip_Select.wav");
 
 			return true;
 		}
@@ -258,7 +258,7 @@ public:
 				{
 					holdingItem = Item::NULL_ITEM;
 
-					AudioSystem::GetInstance()->PlayClip("Data/Drop_Item.wav");
+					//AudioSystem::GetInstance()->PlayClip("Data/Drop_Item.wav");
 
 					droppingItem = false;
 				}
@@ -316,7 +316,7 @@ public:
 			{
 				droppingItem = true;
 
-				AudioSystem::GetInstance()->PlayClip("Data/Blip_Select3.wav");
+				//AudioSystem::GetInstance()->PlayClip("Data/Blip_Select3.wav");
 			}
 		}
 

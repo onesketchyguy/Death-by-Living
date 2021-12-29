@@ -98,7 +98,7 @@ public: // Character stuff
 		if (damage > 0) 
 		{
 			health.ModifyValue(-damage);
-			AudioSystem::GetInstance()->PlayClip("Data/Hit_Hurt.wav");
+			//AudioSystem::GetInstance()->PlayClip("Data/Hit_Hurt.wav");
 		}
 	}
 
@@ -201,7 +201,7 @@ public: // Character stuff
 			pos.x += xDir;
 			pos.y += yDir;
 
-			AudioSystem::GetInstance()->PlayClip("Data/Move.wav");
+			//AudioSystem::GetInstance()->PlayClip("Data/Move.wav");
 		}
 	}
 

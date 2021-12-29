@@ -29,7 +29,7 @@ public:
 	{
 		delete characterSheet;
 		delete uiSheet;
-		AudioSystem::DestroyInstance();
+		//AudioSystem::DestroyInstance();
 		
 		for (auto c : characters) delete c;
 	}
@@ -41,7 +41,7 @@ public:
 
 		srand(time(0));
 
-		AudioSystem::CreateInstance();
+		//AudioSystem::CreateInstance();
 
 		uiSheet = new olc::Renderable();
 		uiSheet->Load("Data/ui.png");

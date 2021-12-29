@@ -12,6 +12,9 @@ public:
     std::vector<std::string> matrix;
     std::vector<V2> checked;
     std::vector<V2> to_check;
+    std::vector<V2> end_room;
+    std::vector<V2> item_room;
+    std::vector<V2> boss_room;
 
 public:
 
@@ -20,22 +23,30 @@ public:
     void EmptyMatrix() { matrix.clear(); }
     void ClearMatrix() { matrix.clear(); InitMatrix(); }
     void InitMatrix() { for (int y = 0; y < height; y++) { for (int x = 0; x < width; x++) { matrix.push_back("0000"); } } }
+    void ResetLevel() { ClearMatrix(); end_room.clear(); item_room.clear(); boss_room.clear(); }
 
-    void GenerateMatrix()
+    void GenerateMatrix(float scale=0.25)
     {
-        ClearMatrix();
-        GenerateCorridors(8, 8, 4, 4);
+        ResetLevel();
+        GenerateCorridors( 8,  8,  4, 1.0);
+        int limit = int(7.0*scale);
+        if (rand()%100 < 5) GenerateCorridors(8-rand()%limit, 8-rand()%limit,  rand()%5, scale);
+        if (rand()%100 < 5) GenerateCorridors(8-rand()%limit, 8+rand()%limit,  rand()%5, scale);
+        if (rand()%100 < 5) GenerateCorridors(8+rand()%limit, 8-rand()%limit,  rand()%5, scale);
+        if (rand()%100 < 5) GenerateCorridors(8+rand()%limit, 8+rand()%limit,  rand()%5, scale);
         TileMatrix();
     }
 
-    void GenerateCorridors(int sx, int sy, int min_blobs=1, int blob_size=16)
+    void GenerateCorridors(int sx, int sy, int min_blobs=1, double scale=0.9)
     {
+        scale = std::min(scale, 0.90);
         int blob_count = 0;
+        int blob_size = int(16.0*scale);
         std::vector<int> blobs = {1, 2, 4, 8};
-        int north=rand()%int((height)*0.4),
-            south=rand()%int((height)*0.4),
-            east=rand()%int((width)*0.4),
-            west=rand()%int((width)*0.4);
+        int north=rand()%int((sy)*scale),
+            south=rand()%int((height-sy)*scale),
+            east=rand()%int((width-sx)*scale),
+            west=rand()%int((sx)*scale);
         for (int n = 0; n < north; n++) { matrix[(sy-n)*width+sx] = "1111"; } if (rand()%100 < 50) { GenerateBlob(sx, sy-north, rand()%blob_size); blob_count++; }
         for (int w = 0; w < west; w++)  { matrix[sy*width+(sx-w)] = "1111"; } if (rand()%100 < 50) { GenerateBlob(sx-west,  sy, rand()%blob_size); blob_count++; }
         for (int e = 0; e < east; e++)  { matrix[sy*width+(sx+e)] = "1111"; } if (rand()%100 < 50) { GenerateBlob(sx+east,  sy, rand()%blob_size); blob_count++; }
@@ -88,10 +99,10 @@ public:
         {
             for (int x = 0; x < width; x++)
             {
-                std::string n1 = "0"; if (y != 0 && y < height-1 && level[(y-1)*width+x] == true) { n1 = "1"; }
-                std::string n2 = "0"; if (x != width -1 && x > 0 && level[y*width+(x-1)] == true) { n2 = "1"; }
-                std::string n4 = "0"; if (x != 0 && x < width -1 && level[y*width+(x+1)] == true) { n4 = "1"; }
-                std::string n8 = "0"; if (y != height-1 && y > 0 && level[(y+1)*width+x] == true) { n8 = "1"; }
+                std::string n1 = "0"; if (y > 0 && y < height-1 && level[(y-1)*width+x] == true) { n1 = "1"; }
+                std::string n2 = "0"; if (x < width -1 && x > 0 && level[y*width+(x-1)] == true) { n2 = "1"; }
+                std::string n4 = "0"; if (x > 0 && x < width -1 && level[y*width+(x+1)] == true) { n4 = "1"; }
+                std::string n8 = "0"; if (y < height-1 && y > 0 && level[(y+1)*width+x] == true) { n8 = "1"; }
                 if (level[y*width+x]) { matrix[y*width+x] = n8+n4+n2+n1; }
             }
         }
