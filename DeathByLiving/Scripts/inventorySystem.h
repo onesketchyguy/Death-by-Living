@@ -32,8 +32,7 @@ private:
 	Item equippedWeapon{ "NULLITEM", 0, 0, WEAPON_TYPE };
 
 	Item holdingItem = Item::NULL_ITEM;
-
-	bool changed = false;
+	
 	bool draw = false;
 	uint32_t drawLayer = 0;
 	bool droppingItem = false;	
@@ -65,8 +64,7 @@ public:
 		windowPosition.y = y - (SLOT_SIDE_PADDING + SLOT_TOP_OFFSET + (CELL_SIZE * VERTICAL_CELLS));
 	}
 
-	void Update(olc::PixelGameEngine* pge);
-
+	void Draw(olc::PixelGameEngine* pge);
 	void Initialize(olc::PixelGameEngine* pge, olc::Renderable* inventoryUI);
 
 	~Inventory() = default;

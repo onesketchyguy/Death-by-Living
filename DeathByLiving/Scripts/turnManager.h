@@ -127,7 +127,7 @@ public:
 					pge->DrawPartialDecal(screenPos, drawScale, uiSheet->Decal(), olc::vi2d{ 0,0 }, olc::vi2d{ 16,16 }, mouseOver ? olc::WHITE : olc::GREY);
 				}
 
-				currentTurn->inv.Update(pge);
+				currentTurn->inv.Draw(pge);
 			}
 		}
 	}

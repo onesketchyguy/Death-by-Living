@@ -175,11 +175,10 @@ void Inventory::SetDrawing(olc::PixelGameEngine* pge, bool value)
 	}
 }
 
-void Inventory::Update(olc::PixelGameEngine* pge)
+void Inventory::Draw(olc::PixelGameEngine* pge)
 {
-	if (GetUsedItem() != nullptr && GetUsedItem()->name == Item::NULL_ITEM.name) ClearUseItem();
 	if (draw == false) return;
-
+	if (GetUsedItem() != nullptr && GetUsedItem()->name == Item::NULL_ITEM.name) ClearUseItem();
 	pge->SetDrawTarget(drawLayer);
 
 	if (droppingItem)
@@ -281,11 +280,7 @@ void Inventory::Update(olc::PixelGameEngine* pge)
 void Inventory::Initialize(olc::PixelGameEngine* pge, olc::Renderable* inventoryUI)
 {
 	this->inventoryUI = inventoryUI;
-
-	for (size_t i = 0; i < HORIZONTAL_CELLS * VERTICAL_CELLS; i++)
-	{
-		items.push_back(Item::NULL_ITEM);
-	}
+	for (size_t i = 0; i < HORIZONTAL_CELLS * VERTICAL_CELLS; i++) items.push_back(Item::NULL_ITEM);
 
 	drawLayer = pge->CreateLayer();
 }
