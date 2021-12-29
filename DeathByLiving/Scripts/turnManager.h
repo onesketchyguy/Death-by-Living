@@ -111,21 +111,16 @@ public:
 				{
 					if (i == 4 || (currentTurn->canMoveDiagonally == false && i % 2 == 0)) continue;
 
-					int x = i % 3;
-					int y = i / 3;
+					int x = (i % 3) - 1;
+					int y = (i / 3) - 1;
 
-					auto screenPos = currentTurn->GetScreenPos(x + currentTurn->pos.x - 1, y + currentTurn->pos.y - 1);
-					olc::vi2d drawScale = olc::vi2d{16, 16};
+					olc::vi2d screenPos = currentTurn->GetScreenPos(x + currentTurn->pos.x, y + currentTurn->pos.y);
+					olc::vi2d drawScale = olc::vi2d{ 16, 16 };
 					bool mouseOver = (pge->GetMouseY() > screenPos.y && pge->GetMouseY() <= screenPos.y + drawScale.y) && (pge->GetMouseX() > screenPos.x && pge->GetMouseX() <= screenPos.x + drawScale.x);
 
 					if (mouseOver && pge->GetMouse(0).bReleased)
 					{
-						x--;
-						y--;
-
 						currentTurn->MoveDir(x, y);
-						std::cout << "Clicked x(" << std::to_string(x) <<") y(" << std::to_string(y) << ")" << std::endl;
-
 						break;
 					}
 
