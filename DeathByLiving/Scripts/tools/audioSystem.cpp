@@ -4,7 +4,6 @@
 AudioSystem* AudioSystem::instance = nullptr;
 
 #ifndef NO_AUDIO
-
 #include <unordered_map>
 
 // MAKE SURE YOU HAVE THE LINKER SET UP!!!
@@ -55,32 +54,33 @@ void AudioSystem::PlayClip(const char* clipLocation)
 
 		got = clipMap.find(clipLocation);
 
-		if (got == clipMap.end()) 
+		if (got == clipMap.end())
 		{
-			std::cout << "Error: Clip not found" << std::endl; // Did not find clip
+			std::cout << "Error: Clip\"" << clipLocation << "\" not found" << std::endl; // Did not find clip
 			return;
 		} else std::cout << "Success." << std::endl;
-	}	
+	}
 
-	soLoud.play(*clipMap[clipLocation]); // Found clip, play the wave	
+	soLoud.play(*clipMap[clipLocation]); // Found clip, play the wave
 }
 
 #endif // NO_AUDIO
 
 #ifdef NO_AUDIO
+#include <vector>
+std::vector<std::string> readCallouts;
+
 AudioSystem::AudioSystem() = default;
 AudioSystem::~AudioSystem() = default;
 
-void AudioSystem::LoadClip(const char* clipLocation)
-{
-	if (AUDIO_ENABLED == false) return;
-	std::cout << "Unable to load clip! NO_AUDIO defined in compiler" << std::endl;
+void AudioSystem::LoadClip(const char* clipLocation) { std::cout << "WARNING: Unable to load clip. NO_AUDIO defined." << std::endl; }
+void AudioSystem::PlayClip(const char* clipLocation) 
+{ 
+	// Make sure we haven't already debugged this, as over debugging is annoying.
+	if (std::find(readCallouts.begin(), readCallouts.end(), clipLocation) == readCallouts.end()) 
+	{
+		std::cout << "WARNING: Unable to play clip \"" << clipLocation << "\" NO_AUDIO defined." << std::endl;
+		readCallouts.push_back(clipLocation);
+	}
 }
-
-void AudioSystem::PlayClip(const char* clipLocation)
-{
-	if (AUDIO_ENABLED == false) return;
-	std::cout << "Unable to play clip! NO_AUDIO defined in compiler" << std::endl;
-}
-
 #endif // NO_AUDIO
