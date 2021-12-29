@@ -18,17 +18,28 @@ int main()
 	ShowWindow(GetConsoleWindow(), SW_SHOW);
 #endif // !NDEBUG
 */
-	SettingsData settings;
-	SettingsData::LoadJsonData(settings);
 
-	int width = settings.windowWidth / settings.pixelSize;
-	int height = settings.windowHeight / settings.pixelSize;
+	try
+	{
+		SettingsData settings;
+		SettingsData::LoadJsonData(settings);
 
-	AUDIO_ENABLED = settings.soundEnabled;
+		int width = settings.windowWidth / settings.pixelSize;
+		int height = settings.windowHeight / settings.pixelSize;
 
-	Game application;
-	if (application.Construct(width, height, settings.pixelSize, settings.pixelSize))
-		application.Start();
+		AUDIO_ENABLED = settings.soundEnabled;
+
+		Game application;
+		if (application.Construct(width, height, settings.pixelSize, settings.pixelSize))
+			application.Start();
+	}
+	catch (const std::exception& e)
+	{
+		std::cout << e.what() << std::endl; // information from error printed
+		
+		system("pause");
+		return 3;
+	}
 
 	return 0;
 }

@@ -27,8 +27,7 @@ public:
 
 	void SetTurnOrder() 
 	{
-		std::vector<bool> turnAvailable;
-		for (Character* c : characters) { c->turnOrder = 0; turnAvailable.push_back(true); }
+		std::vector<bool> turns(characters.size(), true);
 
 		for (Character* c : characters)
 		{
@@ -36,16 +35,14 @@ public:
 			{
 				int t = rand() % characters.size();
 
-				if (turnAvailable.at(t)) 
+				if (turns.at(t))
 				{
 					c->turnOrder = t + 1;
-					turnAvailable.at(t) = false;
+					turns.at(t) = false;
 				}
 
 			} while (c->turnOrder == 0);
 		}
-
-		turnAvailable.clear();
 	}
 
 	Character* GetNextCharacterTurn() 

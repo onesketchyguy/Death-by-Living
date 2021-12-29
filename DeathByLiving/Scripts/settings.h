@@ -46,27 +46,29 @@ struct SettingsData
 		}
 
 		std::cout << "Found file. ";
+		std::string content;
 
 		while (fs.eof() == false)
 		{
-			std::string content;
+			std::string lineContent;
+			std::getline(fs, lineContent);
 
-			std::getline(fs, content);
-
-			if (content.empty() == false)
-			{
-				auto j = json::parse(content);
-
-				settings.soundEnabled = j.at("soundEnabled");
-				settings.pixelSize = j.at("pixelSize");
-				settings.windowWidth = j.at("windowWidth");
-				settings.windowHeight = j.at("windowHeight");				
-			}
-
-			content.clear();
+			content += lineContent;
 		}
 
 		fs.close();
+
+		if (content.empty() == false)
+		{
+			auto j = json::parse(content);
+
+			settings.soundEnabled = j.at("soundEnabled");
+			settings.pixelSize = j.at("pixelSize");
+			settings.windowWidth = j.at("windowWidth");
+			settings.windowHeight = j.at("windowHeight");
+		}
+
+		content.clear();		
 
 		std::cout << "Settings loaded." << std::endl;
 

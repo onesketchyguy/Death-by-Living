@@ -10,6 +10,114 @@
 // for convenience
 using json = nlohmann::json;
 
+struct CharacterTemplate
+{
+	std::string name = "";
+	int actionPoints = 0;
+
+	int respawnTime = 0;
+	int hitPoints = 0;
+	int attackRange = 0;
+
+	bool randWeapon = false, randArmor = false;
+
+	std::string summons = "";
+	int summonInterval = 0;
+
+	// Sprite stuff
+	int hSprCell = 0, vSprCell = 0;
+
+	// Movement stuff	
+	bool diagonalMovement = false;
+	bool moveRandom = false;
+	bool canOverlap = false;
+	int fleeRange = 0;
+
+	// Write JSON to file
+	const static void WriteToJson(std::vector<CharacterTemplate>& items, std::string fileName = "Data/characterTemplates.json")
+	{
+		std::ofstream o(fileName);
+
+		for (auto& item : items)
+		{
+			json j;
+
+			j["name"] = item.name;
+			j["ap"] = item.actionPoints;
+			j["rt"] = item.respawnTime;
+			j["hp"] = item.hitPoints;
+			j["attRange"] = item.attackRange;
+			j["randW"] = item.randWeapon;
+			j["randA"] = item.randArmor;
+			j["summons"] = item.summons;
+			j["summonInt"] = item.summonInterval;
+			j["hCell"] = item.hSprCell;
+			j["vCell"] = item.vSprCell;
+			j["overlap"] = item.canOverlap;
+			j["movDiag"] = item.diagonalMovement;
+			j["movRand"] = item.moveRandom;
+			j["fleeRange"] = item.fleeRange;
+
+			//std::cout << j << std::endl;
+			o << j << std::endl;
+		}
+
+		o.close();
+	}
+
+	// Read a JSON file
+	const static void LoadJsonData(std::vector<CharacterTemplate>& items, std::string fileName = "Data/characterTemplates.json")
+	{
+		std::ifstream fs;
+		fs.open(fileName);
+
+		if (fs.is_open() == false)
+		{
+			std::cout << "No file found." << std::endl;
+			return;
+		}
+
+		std::cout << "Found file. ";
+
+		while (fs.eof() == false)
+		{
+			std::string content;
+			CharacterTemplate item;
+
+			std::getline(fs, content);
+
+			if (content.empty() == false)
+			{
+				auto j = json::parse(content);
+
+				item.name = j.at("name");
+				item.actionPoints = j.at("ap");
+				item.respawnTime = j.at("rt");
+				item.hitPoints = j.at("hp");
+				item.attackRange = j.at("attRange");
+				item.randWeapon = j.at("randW");
+				item.randArmor = j.at("randA");
+				item.summons = j.at("summons");
+				item.summonInterval = j.at("summonInt");
+				item.hSprCell = j.at("hCell");
+				item.vSprCell = j.at("vCell");
+				item.canOverlap = j.at("overlap");
+				item.diagonalMovement = j.at("movDiag");
+				item.moveRandom = j.at("movRand");
+				item.fleeRange = j.at("fleeRange");
+
+				items.push_back(item);
+			}
+
+			content.clear();
+		}
+
+		fs.close();
+
+		std::cout << "Characters loaded." << std::endl;
+	}
+};
+
 class Character 
 {
 private: // Action stuff
@@ -210,7 +318,11 @@ public: // Character stuff
 		{			
 			health.Draw(pge, pge->ScreenWidth() >> 1, 0, deltaTime);
 
-			if (pge->GetKey(olc::Key::I).bPressed) inv.SetDrawing(pge, !inv.GetDrawing());
+			if (pge->GetKey(olc::Key::CTRL).bHeld && pge->GetKey(olc::Key::I).bPressed) inv.AddItem(Item::GetRandomItem());
+			else if (pge->GetKey(olc::Key::I).bPressed) inv.SetDrawing(pge, !inv.GetDrawing());
+
+			/*if (pge->GetKey(olc::Key::CTRL).bHeld && pge->GetKey(olc::Key::NP_SUB).bPressed) DealDamage(1);
+			if (pge->GetKey(olc::Key::CTRL).bHeld && pge->GetKey(olc::Key::NP_ADD).bPressed) health.ModifyValue(1);*/
 		}
 
 		const float RIGHT = static_cast<float>(drawScaleX);
@@ -264,118 +376,33 @@ public: // Character stuff
 		cellY = y;
 	}
 
+	void GenerateFromTemplate(const CharacterTemplate& _template)
+	{
+		this->SetSpriteIndex(_template.hSprCell, _template.vSprCell);
+		this->SetMaxTokens(_template.actionPoints);
+		this->health.SetValue(_template.hitPoints);
+		this->name = _template.name;
+		this->canMoveDiagonally = _template.diagonalMovement;
+		this->canOverlap = _template.canOverlap;
+		this->moveRandom = _template.moveRandom;
+		this->summonsCharacter = _template.summons;
+		this->summonInterval = _template.summonInterval;
+		this->respawnTime = _template.respawnTime;
+
+		if (_template.randArmor) this->inv.AddItem(Item::GetRandomArmor());
+		if (_template.randWeapon) this->inv.AddItem(Item::GetRandomWeapon());
+	}
+
+	// FIXME: Deprecate and remove this
 	Character(olc::Renderable* spriteSheet) { this->spriteSheet = spriteSheet; }
-};
-
-
-struct CharacterTemplate 
-{
-	std::string name = "";
-	int actionPoints = 0;
-	
-	int respawnTime = 0;
-	int hitPoints = 0;
-	int attackRange = 0;
-
-	bool randWeapon = false, randArmor = false;
-	
-	std::string summons = "";
-	int summonInterval = 0;
-
-	// Sprite stuff
-	int hSprCell = 0, vSprCell = 0;
-
-	// Movement stuff	
-	bool diagonalMovement = false;
-	bool moveRandom = false;
-	bool canOverlap = false;
-	int fleeRange = 0;
-
-	// Write JSON to file
-	const static void WriteToJson(std::vector<CharacterTemplate>& items, std::string fileName = "Data/characterTemplates.json")
-	{
-		std::ofstream o(fileName);
-
-		for (auto& item : items)
-		{
-			json j;
-
-			j["name"] = item.name;
-			j["ap"] = item.actionPoints;
-			j["rt"] = item.respawnTime;
-			j["hp"] = item.hitPoints;
-			j["attRange"] = item.attackRange;
-			j["randW"] = item.randWeapon;
-			j["randA"] = item.randArmor;
-			j["summons"] = item.summons;
-			j["summonInt"] = item.summonInterval;
-			j["hCell"] = item.hSprCell;
-			j["vCell"] = item.vSprCell;
-			j["overlap"] = item.canOverlap;
-			j["movDiag"] = item.diagonalMovement;
-			j["movRand"] = item.moveRandom;
-			j["fleeRange"] = item.fleeRange;
-
-			//std::cout << j << std::endl;
-			o << j << std::endl;
-		}
-
-		o.close();
-	}
-
-	// Read a JSON file
-	const static void LoadJsonData(std::vector<CharacterTemplate>& items, std::string fileName = "Data/characterTemplates.json")
-	{
-		std::ifstream fs;
-		fs.open(fileName);
-
-		if (fs.is_open() == false)
-		{
-			std::cout << "No file found." << std::endl;
-			return;
-		}
-
-		std::cout << "Found file. ";
-
-		while (fs.eof() == false)
-		{
-			std::string content;
-			CharacterTemplate item;
-
-			std::getline(fs, content);
-
-			if (content.empty() == false)
-			{
-				auto j = json::parse(content);
-
-				item.name = j.at("name");
-				item.actionPoints = j.at("ap");
-				item.respawnTime = j.at("rt");
-				item.hitPoints = j.at("hp");
-				item.attackRange = j.at("attRange");
-				item.randWeapon = j.at("randW");
-				item.randArmor = j.at("randA");
-				item.summons = j.at("summons");
-				item.summonInterval = j.at("summonInt");
-				item.hSprCell = j.at("hCell");
-				item.vSprCell = j.at("vCell");
-				item.canOverlap = j.at("overlap");
-				item.diagonalMovement = j.at("movDiag");
-				item.moveRandom = j.at("movRand");
-				item.fleeRange = j.at("fleeRange");
-
-				items.push_back(item);
-			}
-
-			content.clear();
-		}
-
-		fs.close();
-
-		std::cout << "Characters loaded." << std::endl;
+	Character(olc::Renderable* spriteSheet, const CharacterTemplate& _template) 
+	{ 
+		this->spriteSheet = spriteSheet; 
+		GenerateFromTemplate(_template);
 	}
 };
 
+// FIXME: Deprecate and remove this
 const static void GetCharacterFromTemplate(Character* c, const CharacterTemplate& _template)
 {
 	c->SetSpriteIndex(_template.hSprCell, _template.vSprCell);
