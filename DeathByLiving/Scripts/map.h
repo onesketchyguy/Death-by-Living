@@ -44,6 +44,30 @@ public:
     void InsertLayer(int layer) { std::vector<char> l; matrix.insert(matrix.begin()+layer, l); InitLayer(layer); layers++; }
     void DeleteLayer(int layer) { matrix.erase(matrix.begin()+layer); layers--; }
     // Cell
+    void FloodFill(char tile, uint8_t X, uint8_t Y, int layer)
+    {
+        struct Pair { public: int x; int y; };
+        std::vector<Pair> check;
+        char r = matrix[layer][Y * width + X];
+        Pair first{X, Y};
+        check.push_back(first);
+        if (r == tile) return;
+        while (check.size() > 0)
+        {
+            int x = check[0].x; 
+            int y = check[0].y; 
+            char current = matrix[layer][y * width + x];
+            if (current = tile)
+            {
+                int dN = ((y - 1) * width + (x));   
+                if (matrix[layer][dN] == r && y > 0) { Pair v = Pair();   v.x = x; v.y = y - 1; check.push_back(v); matrix[layer][dN] = tile; }
+                int dS = ((y + 1) * width + (x));   if (matrix[layer][dS] == r && y < width - 1) { Pair v = Pair();   v.x = x; v.y = y + 1; check.push_back(v); matrix[layer][dS] = tile; }
+                int dE = ((y)*width + (x + 1));   if (matrix[layer][dE] == r && x < width - 1) { Pair v = Pair(); v.x = x + 1;   v.y = y; check.push_back(v); matrix[layer][dE] = tile; }
+                int dW = ((y)*width + (x - 1));   if (matrix[layer][dW] == r && x > 0) { Pair v = Pair(); v.x = x - 1;   v.y = y; check.push_back(v); matrix[layer][dW] = tile; }
+            }
+            check.erase(check.begin());
+        }
+    }
     void SetCell(char tile, int x, int y, int layer) { if (x < width && y < height) { matrix[layer][y*width+x] = tile; } }
     char GetCell(int x, int y, int layer) { if (matrix.size() <= layer && x >= 0 && x < width && y >= 0 && y < height) { return matrix[layer][y*width+x]; } }
     bool GetCollision(int x, int y, int layer) { return (matrix[layer][y*width+x] == '#'); }

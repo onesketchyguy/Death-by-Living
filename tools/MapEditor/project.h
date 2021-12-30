@@ -332,6 +332,7 @@ public:
         if (GetKey(olc::NP5).bPressed) { world.GenerateMatrix(); GenerateLevel(); }
         if (GetKey(olc::TAB).bPressed) { tile_mode = !tile_mode; }
         if (GetMouse(0).bHeld) { map.SetCell(selected, x, y, layer); }
+        if (GetMouse(1).bReleased) { map.FloodFill(selected, x, y, layer); }
 
         // Draw
         if (tile_mode) { DrawTiles(); } else { DrawChars(); }
