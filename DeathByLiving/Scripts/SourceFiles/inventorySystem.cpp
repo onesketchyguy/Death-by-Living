@@ -36,6 +36,7 @@ void Inventory::DrawSlot(olc::vi2d pos, Item& item, olc::PixelGameEngine* pge, s
 	if (item.name != Item::NULL_ITEM.name)
 	{
 		std::string itemInfo;
+		olc::Pixel col = olc::WHITE;
 
 		if (item.type == ARMOR_TYPE)
 		{
@@ -58,11 +59,16 @@ void Inventory::DrawSlot(olc::vi2d pos, Item& item, olc::PixelGameEngine* pge, s
 				std::to_string(item.durValue) + "uses\n";
 
 			if (mouseOver && pge->GetMouse(1).bReleased) output = &item;
+
+			if (item.name.find("blue") != std::string::npos) col = olc::Pixel{ 200, 200, 255};
+			else if (item.name.find("red") != std::string::npos) col = olc::Pixel{ 255, 200, 200 };
+			else if (item.name.find("green") != std::string::npos) col = olc::Pixel{ 200, 255, 200 };
+			else if (item.name.find("purple") != std::string::npos) col = olc::Pixel{ 255, 200, 255 };
 		}
 
 		pge->DrawPartialDecal(pos, DRAW_SIZE, inventoryUI->Decal(),
 			olc::vi2d{ FRAME_SIZE * item.spriteCellX, FRAME_SIZE * item.spriteCellY },
-			olc::vi2d{ FRAME_SIZE, FRAME_SIZE });
+			olc::vi2d{ FRAME_SIZE, FRAME_SIZE }, col);
 
 		if (mouseOver)
 		{
