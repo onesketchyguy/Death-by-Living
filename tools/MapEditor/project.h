@@ -225,21 +225,34 @@ public:
                 float X = (x*t)+(map.width*var::tile)+2;
                 float Y = (y*t)+(var::tile*4);
                 float tx=0, ty=count*var::tile;
-                DrawPartialDecal({ X,Y }, tileset.Decal(), { tx,ty }, { 16.0,16.0 }, { 3.0,3.0 }, color0);
-                if (mx > X && mx < X+t && my > Y && my < Y+t)
+
+                if (map.keys[selected] == count) 
                 {
-                    float sX=X+(t/4), sY=Y+(t/4);
+                    FillRectDecal({ X, Y }, { 16 * 3, 16 * 3 }, olc::VERY_DARK_GREY);
+                    float sX = X + (t / 4), sY = Y + (t / 4);
                     DrawPartialDecal({ sX,sY }, tileset.Decal(), { tx,ty }, { 16.0,16.0 }, { 1.5,1.5 });
-                    if (GetMouse(0).bPressed)
+                }
+                else
+                {
+                    DrawRectDecal(X, Y, 16 * 3, 16 * 3, olc::VERY_VERY_DARK_GREY);
+                    DrawPartialDecal({ X,Y }, tileset.Decal(), { tx,ty }, { 16.0,16.0 }, { 3.0,3.0 }, color0);
+                    if (mx > X && mx < X + t && my > Y && my < Y + t)
                     {
-                        auto iter = map.keys.begin();
-                        while (iter != map.keys.end())
+                        float sX = X + (t / 4), sY = Y + (t / 4);
+                        FillRectDecal({ X, Y }, { 16 * 3, 16 * 3 }, olc::VERY_VERY_DARK_GREY);
+                        DrawPartialDecal({ sX,sY }, tileset.Decal(), { tx,ty }, { 16.0,16.0 }, { 1.5,1.5 });
+                        if (GetMouse(0).bPressed)
                         {
-                            if (iter->second == count) { selected = iter->first; break; }
-                            ++iter;
+                            auto iter = map.keys.begin();
+                            while (iter != map.keys.end())
+                            {
+                                if (iter->second == count) { selected = iter->first; break; }
+                                ++iter;
+                            }
                         }
                     }
                 }
+
                 count++;
             }
         }
