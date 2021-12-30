@@ -45,7 +45,7 @@ struct SettingsData
 			return false;
 		}
 
-		std::cout << "Found file. ";
+		std::cout << "Found file... ";
 		std::string content;
 
 		while (fs.eof() == false)
@@ -67,8 +67,6 @@ struct SettingsData
 			settings.windowWidth = j.at("windowWidth");
 			settings.windowHeight = j.at("windowHeight");
 		}
-
-		content.clear();		
 
 		std::cout << "Settings loaded." << std::endl;
 

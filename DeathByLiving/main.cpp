@@ -29,6 +29,8 @@ int main()
 
 		AUDIO_ENABLED = settings.soundEnabled;
 
+		std::cout << "AUDIO ENABLED: " << std::to_string(AUDIO_ENABLED) << std::endl;
+
 		Game application;
 		if (application.Construct(width, height, settings.pixelSize, settings.pixelSize))
 			application.Start();

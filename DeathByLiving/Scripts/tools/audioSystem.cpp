@@ -13,6 +13,9 @@ AudioSystem* AudioSystem::instance = nullptr;
 
 SoLoud::Soloud soLoud; // SoLoud engine
 std::unordered_map <std::string, SoLoud::Wav*> clipMap;
+std::string soundTrackName = "";
+
+float soundTrackLoopTime = 0.0f;
 
 AudioSystem::AudioSystem()
 {
@@ -42,9 +45,9 @@ void AudioSystem::LoadClip(const char* clipLocation)
 	else std::cout << "Error: Unable to load clip" << std::endl; // Did not find clip
 }
 
-void AudioSystem::PlayClip(const char* clipLocation)
+double AudioSystem::PlayClip(const char* clipLocation)
 {
-	if (AUDIO_ENABLED == false) return;
+	if (AUDIO_ENABLED == false) return 0.0f;
 	std::unordered_map<std::string, SoLoud::Wav*>::const_iterator got = clipMap.find(clipLocation);
 
 	if (got == clipMap.end())
@@ -57,11 +60,35 @@ void AudioSystem::PlayClip(const char* clipLocation)
 		if (got == clipMap.end())
 		{
 			std::cout << "Error: Clip\"" << clipLocation << "\" not found" << std::endl; // Did not find clip
-			return;
+			return 0.0f;
 		} else std::cout << "Success." << std::endl;
 	}
 
 	soLoud.play(*clipMap[clipLocation]); // Found clip, play the wave
+	return static_cast<double>(clipMap[clipLocation]->getLength());
+}
+
+void AudioSystem::SetSoundTrack(const char* clipLocation) 
+{
+	if (AUDIO_ENABLED == false) return;
+
+	soundTrackName = clipLocation;
+	LoadClip(clipLocation);
+}
+
+void AudioSystem::PlaySoundTrack(float elapsedTime) 
+{
+	if (AUDIO_ENABLED == false) return;
+
+	if (soundTrackName.length() <= 0) 
+	{
+		std::cout << "Sound track not loaded, unable to play!" << std::endl;
+	}
+	else 
+	{
+		if (soundTrackLoopTime <= 0.0f) soundTrackLoopTime = AudioSystem::GetInstance()->PlayClip(soundTrackName.c_str());
+		else soundTrackLoopTime -= elapsedTime;
+	}
 }
 
 #endif // NO_AUDIO

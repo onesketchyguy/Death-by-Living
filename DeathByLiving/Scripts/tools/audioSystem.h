@@ -19,7 +19,11 @@ private:
 
 public:
 	void LoadClip(const char* clipLocation);
-	void PlayClip(const char* clipLocation);
+	// Returns clip length
+	double PlayClip(const char* clipLocation);
+
+	void SetSoundTrack(const char* clipLocation);
+	void PlaySoundTrack(float elapsedTime);
 };
 
 #endif
