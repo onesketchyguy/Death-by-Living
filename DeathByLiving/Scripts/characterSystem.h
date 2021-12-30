@@ -292,7 +292,7 @@ public: // Character stuff
 
 	void EndTurn() 
 	{
-		if (name == "Player") health.ModifyValue(-1);
+		if (name == "Player") health.ModifyValue(-1, false);
 	}
 
 	void MoveDir(int xDir, int yDir)

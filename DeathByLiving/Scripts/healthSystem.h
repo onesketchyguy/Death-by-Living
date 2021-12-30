@@ -15,16 +15,18 @@ private:
 	int health;
 	int prevHealth;
 	
-
 	float showTime = 0.0f;
 
 public:
-	void ModifyValue(int mod) 
+	void ModifyValue(int mod, bool notify = true) 
 	{
-		prevHealth = health;
+		if (notify) 
+		{
+			prevHealth = health;
+			showTime = SHOW_HEALTH_DIFF_TIME;
+		}
 
 		health += mod;
-		showTime = SHOW_HEALTH_DIFF_TIME;
 	}
 
 	void SetValue(int value) { prevHealth = health = value; }
