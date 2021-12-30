@@ -1,8 +1,6 @@
 class Map
 {
-
 public:
-
     // Data
     int width = 0;
     int height = 0;
@@ -73,8 +71,7 @@ public:
     
     void SaveTally()
     {
-        std::fstream data_file;
-        data_file.open("../../DeathByLiving/Data/maps/room_tally.data");
+        std::ofstream data_file("Data/maps/room_tally.data");
         if (data_file.is_open())
         {
             std::cout << "opened" << std::endl;
@@ -95,15 +92,12 @@ public:
             data_file << room_tally["1111"] << std::endl;
             data_file.close();
         }
-        else
-        { std::ofstream new_file ("../../DeathByLiving/Data/maps/room_tally.data"); SaveTally(); }
     }
 
     void LoadTally()
     {
         std::string line;
-        std::fstream data_file;
-        data_file.open("../../DeathByLiving/Data/maps/room_tally.data");
+        std::ifstream data_file("Data/maps/room_tally.data");
 
         if (data_file.is_open())
         {
@@ -129,10 +123,9 @@ public:
     void SaveData(std::string _dir)
     {
         bool success = false;
-        std::fstream data_file;
         std::string file_path = "Data/maps/"+_dir+"-"+std::to_string(room_tally[_dir])+".map";
-        std::cout << file_path << std::endl;
-        data_file.open(file_path);
+        std::ofstream data_file(file_path);
+        std::cout << "Opening: " << file_path << std::endl;        
         if (data_file.is_open())
         {
             for (int l = 0; l < layers; l++)
@@ -145,10 +138,10 @@ public:
                 data_file << '>' << std::endl;
             }
             data_file.close();
+            std::cout << "Closing: " << file_path << std::endl;
+
             success = true;
-        }
-        else
-        { std::ofstream new_file (file_path); SaveData(_dir); }
+        } else std::cout << "Failed to create/open: " << file_path << std::endl;
         
         if (success) room_tally[_dir]++;
     }
@@ -156,8 +149,7 @@ public:
     void LoadData(std::string _dir)
     {
         std::string line;
-        std::fstream data_file;
-        data_file.open("Data/maps/"+_dir+".map");
+        std::ifstream data_file("Data/maps/" + _dir + ".map");
         if (data_file.is_open())
         {
             int layer = 0, y = 0;
@@ -172,6 +164,9 @@ public:
             }
             data_file.close();
         }
+        else 
+        {
+            for (int i = 0; i < layers; i++) ClearLayer(i);
+        }
     }
-
 };

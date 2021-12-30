@@ -340,7 +340,7 @@ public:
 
     bool OnUserCreate() override
     {
-        tileset.Load("../../DeathByLiving/Data/tiles-16x16.png");
+        tileset.Load("Data/tiles-16x16.png");
         return true;
     }
 

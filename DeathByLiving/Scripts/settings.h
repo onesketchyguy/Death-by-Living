@@ -18,16 +18,13 @@ struct SettingsData
 	// Write JSON to file
 	const static void WriteToJson(SettingsData& settings, std::string fileName = "Data/settings.json")
 	{
-		std::ofstream o(fileName);	
+		std::ofstream o(fileName);
 
 		json j;
-
 		j["soundEnabled"] = settings.soundEnabled;
 		j["pixelSize"] = settings.pixelSize;
 		j["windowWidth"] = settings.windowWidth;
 		j["windowHeight"] = settings.windowHeight;
-
-		//std::cout << j << std::endl;
 		o << j << std::endl;
 
 		o.close();
