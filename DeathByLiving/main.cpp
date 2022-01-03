@@ -2,8 +2,8 @@
 
 #define OLC_PGE_APPLICATION
 #include "lib/olcPixelGameEngine.h"
-//#include "Scripts/main.h"
-#include "../tools/MapEditor/project.h"
+#include "Scripts/main.h"
+//#include "../tools/MapEditor/project.h"
 #include "Scripts/settings.h"
 
 bool AUDIO_ENABLED = true;
@@ -24,8 +24,8 @@ int main()
 		SettingsData settings;
 		SettingsData::LoadJsonData(settings);
 
-		settings.windowWidth = 1200;
-		settings.pixelSize = 2;
+		//settings.windowWidth = 1200;
+		//settings.pixelSize = 2;
 
 		int width = settings.windowWidth / settings.pixelSize;
 		int height = settings.windowHeight / settings.pixelSize;
@@ -44,6 +44,8 @@ int main()
 		system("pause");
 		return 3;
 	}
+
+	system("pause");
 
 	return 0;
 }

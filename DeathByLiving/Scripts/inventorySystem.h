@@ -65,7 +65,7 @@ public:
 	}
 
 	void Draw(olc::PixelGameEngine* pge);
-	void Initialize(olc::PixelGameEngine* pge, olc::Renderable* inventoryUI);
+	void Initialize(olc::PixelGameEngine* pge, olc::Renderable* inventoryUI, bool drawing = false, int x = 0, int y = 0);
 
 	~Inventory() = default;
 	Inventory() = default;

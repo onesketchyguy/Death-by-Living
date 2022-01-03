@@ -3,8 +3,6 @@
 #define HEALTH_SYSTEM_H
 
 #include "../lib/olcPixelGameEngine.h"
-#include "inventorySystem.h"
-#include "items.h"
 #include "utility.h"
 
 const float SHOW_HEALTH_DIFF_TIME = 1.0f;

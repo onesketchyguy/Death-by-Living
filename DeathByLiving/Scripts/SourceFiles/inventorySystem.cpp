@@ -283,10 +283,13 @@ void Inventory::Draw(olc::PixelGameEngine* pge)
 	pge->SetDrawTarget(nullptr);
 }
 
-void Inventory::Initialize(olc::PixelGameEngine* pge, olc::Renderable* inventoryUI)
+void Inventory::Initialize(olc::PixelGameEngine* pge, olc::Renderable* inventoryUI, bool drawing, int x, int y)
 {
 	this->inventoryUI = inventoryUI;
 	for (size_t i = 0; i < HORIZONTAL_CELLS * VERTICAL_CELLS; i++) items.push_back(Item::NULL_ITEM);
 
 	drawLayer = pge->CreateLayer();
+
+	SetPosition(x, y);
+	SetDrawing(pge, drawing);
 }

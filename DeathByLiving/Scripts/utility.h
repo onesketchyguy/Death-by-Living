@@ -67,12 +67,13 @@ namespace util
         return size;
     }
 
-    inline std::string GetCWD()
+    inline std::string GetCWD(const char* _content = "")
     {
         char buff[FILENAME_MAX];
         GetCurrentDir(buff, FILENAME_MAX);
         std::string _dir(buff);
-        return _dir;
+        _dir += _content;
+        return _dir.c_str();
     }
 }
 

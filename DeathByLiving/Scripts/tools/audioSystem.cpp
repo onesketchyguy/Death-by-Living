@@ -2,6 +2,7 @@
 #include <iostream>
 
 AudioSystem* AudioSystem::instance = nullptr;
+#define NO_AUDIO
 
 #ifndef NO_AUDIO
 #include <unordered_map>
@@ -15,7 +16,7 @@ SoLoud::Soloud soLoud; // SoLoud engine
 std::unordered_map <std::string, SoLoud::Wav*> clipMap;
 std::string soundTrackName = "";
 
-float soundTrackLoopTime = 0.0f;
+double soundTrackLoopTime = 0.0;
 
 AudioSystem::AudioSystem()
 {
@@ -74,13 +75,15 @@ void AudioSystem::SetSoundTrack(const char* clipLocation)
 
 	soundTrackName = clipLocation;
 	LoadClip(clipLocation);
+
+	std::cout << "Set sound track: " << clipLocation << std::endl;
 }
 
 void AudioSystem::PlaySoundTrack(float elapsedTime) 
 {
 	if (AUDIO_ENABLED == false) return;
 
-	if (soundTrackName.length() <= 0) 
+	if (soundTrackName.length() <= 1)
 	{
 		std::cout << "Sound track not loaded, unable to play!" << std::endl;
 	}
@@ -101,7 +104,7 @@ AudioSystem::AudioSystem() = default;
 AudioSystem::~AudioSystem() = default;
 
 void AudioSystem::LoadClip(const char* clipLocation) { std::cout << "WARNING: Unable to load clip. NO_AUDIO defined." << std::endl; }
-void AudioSystem::PlayClip(const char* clipLocation) 
+double AudioSystem::PlayClip(const char* clipLocation)
 { 
 	// Make sure we haven't already debugged this, as over debugging is annoying.
 	if (std::find(readCallouts.begin(), readCallouts.end(), clipLocation) == readCallouts.end()) 
@@ -109,5 +112,10 @@ void AudioSystem::PlayClip(const char* clipLocation)
 		std::cout << "WARNING: Unable to play clip \"" << clipLocation << "\" NO_AUDIO defined." << std::endl;
 		readCallouts.push_back(clipLocation);
 	}
+
+	return 0.0;
 }
+
+void AudioSystem::SetSoundTrack(const char* clipLocation){}
+void AudioSystem::PlaySoundTrack(float elapsedTime){}
 #endif // NO_AUDIO
