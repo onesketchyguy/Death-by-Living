@@ -178,7 +178,7 @@ public: // Character stuff
 	HealthContainer health{ 10 };
 
 	const void RewardBonusToken(const int& bonus) { bonusTokens += bonus; };
-	const int& GetMaxTokens() { return maxTokens + bonusTokens; }
+	const int GetMaxTokens() { return maxTokens + bonusTokens; }
 	const void SetMaxTokens(int m) { maxTokens = m; }
 	int actionTokens = 0;
 
