@@ -34,7 +34,6 @@ private:
 	Item holdingItem = Item::NULL_ITEM;
 	
 	bool draw = false;
-	uint32_t drawLayer = 0;
 	bool droppingItem = false;	
 	Item* output = nullptr;
 
@@ -43,6 +42,7 @@ private:
 	void HandleDropItem(olc::PixelGameEngine* pge);
 
 public:
+	const bool GetHolding() { return holdingItem.name != Item::NULL_ITEM.name; };
 	int GetEmptySlot();
 	bool AddItem(Item newItem);
 	void SetDrawing(olc::PixelGameEngine* pge, bool value);

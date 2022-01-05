@@ -28,7 +28,7 @@ void Character::DealDamage(int damage)
 	if (damage > 0)
 	{
 		health.ModifyValue(-damage);
-		//AudioSystem::GetInstance()->PlayClip("Data/Hit_Hurt.wav");
+		AudioSystem::GetInstance()->PlayClip(util::GetCWD("Data/SFX/Hit_Hurt.wav").c_str());
 	}
 }
 
@@ -137,7 +137,7 @@ void Character::MoveDir(int xDir, int yDir)
 		pos.x += xDir;
 		pos.y += yDir;
 
-		//AudioSystem::GetInstance()->PlayClip("Data/Move.wav");
+		AudioSystem::GetInstance()->PlayClip(util::GetCWD("Data/SFX/Move.wav").c_str());
 	}
 }
 

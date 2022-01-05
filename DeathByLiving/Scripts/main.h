@@ -7,6 +7,14 @@
 #include "characterSystem.h"
 #include "turnManager.h"
 #include "utility.h"
+#include "tools/layerManager.h"
+
+uint8_t LayerManager::GetLayer(LAYER_MASK m) { return static_cast<uint8_t>(m); }
+
+void LayerManager::GenerateLayers(olc::PixelGameEngine* pge)
+{
+	for (uint8_t i = 0; i < 3; i++) pge->EnableLayer(pge->CreateLayer(), true);
+}
 
 class Game : public olc::PixelGameEngine
 {
@@ -32,6 +40,8 @@ public:
 		// Called once at the start, so create things here
 		srand(static_cast<unsigned int>(time(0)));
 
+		LayerManager::GenerateLayers(this);
+
 		AudioSystem::CreateInstance();
 		AudioSystem::GetInstance()->SetSoundTrack(util::GetCWD("/Data/SFX/OST.wav").c_str());
 
@@ -48,11 +58,14 @@ public:
 
 	bool OnUserUpdate(float fElapsedTime) override
 	{
-		Clear(olc::BLANK);
-
 		AudioSystem::GetInstance()->PlaySoundTrack(fElapsedTime);
 
+		SetDrawTarget(LayerManager::GetLayer(LAYER_MASK::WORLD));
+		Clear(olc::BLANK);
+
 		// FIXME: Draw world
+
+		SetDrawTarget(nullptr);
 
 		// Draw characters/UI
 		turnManager->Update(this, fElapsedTime);

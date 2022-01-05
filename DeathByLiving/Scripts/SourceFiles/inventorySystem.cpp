@@ -1,6 +1,7 @@
 #include "../inventorySystem.h"
 #include "../utility.h"
 #include "../button.h"
+#include "../tools/layerManager.h"
 
 // Private functions
 void Inventory::DrawHoldingItem(olc::PixelGameEngine* pge)
@@ -137,8 +138,6 @@ void Inventory::HandleDropItem(olc::PixelGameEngine* pge)
 			droppingItem = false;
 		}
 	}
-
-	pge->SetDrawTarget(nullptr);
 }
 
 
@@ -199,24 +198,17 @@ bool Inventory::AddItem(Item newItem)
 	}
 }
 
-void Inventory::SetDrawing(olc::PixelGameEngine* pge, bool value)
-{
-	if (draw != value)
-	{
-		draw = value;
-		pge->EnableLayer(drawLayer, value);
-	}
-}
+void Inventory::SetDrawing(olc::PixelGameEngine* pge, bool value) { draw = value; }
 
 void Inventory::Draw(olc::PixelGameEngine* pge)
 {
 	if (draw == false) return;
 	if (GetUsedItem() != nullptr && GetUsedItem()->name == Item::NULL_ITEM.name) ClearUseItem();
-	pge->SetDrawTarget(drawLayer);
 
 	if (droppingItem)
 	{
 		HandleDropItem(pge);
+		pge->SetDrawTarget(nullptr);
 		return;
 	}
 
@@ -283,15 +275,12 @@ void Inventory::Draw(olc::PixelGameEngine* pge)
 	}
 
 	delete[] positions;
-	pge->SetDrawTarget(nullptr);
 }
 
 void Inventory::Initialize(olc::PixelGameEngine* pge, olc::Renderable* inventoryUI, bool drawing, int x, int y)
 {
 	this->inventoryUI = inventoryUI;
 	for (size_t i = 0; i < HORIZONTAL_CELLS * VERTICAL_CELLS; i++) items.push_back(Item::NULL_ITEM);
-
-	drawLayer = pge->CreateLayer();
 
 	SetPosition(x, y);
 	SetDrawing(pge, drawing);

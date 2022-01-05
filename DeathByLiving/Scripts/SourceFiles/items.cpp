@@ -11,13 +11,13 @@ std::vector<std::string> eqQuality{ "Horrible ", "Worn ", "", "Nice ", "Great ",
 const int WEAPON_NAMES_LENGTH = 5;
 std::string weaponNames[WEAPON_NAMES_LENGTH]
 {
-	"Wooden sword", "Bronze sword", "Iron sword", "Steel sword", "Mythril sword"
+	"Wooden", "Bronze", "Iron", "Steel", "Mythril"
 };
 
-const int ARMOR_NAMES_LENGTH = 5;
+const int ARMOR_NAMES_LENGTH = 6;
 std::string armorNames[ARMOR_NAMES_LENGTH]
 {
-	"Cloth", "Leather", "Iron", "Steel", "Mythril"
+	"Cloth", "Leather", "Bronze", "Iron", "Steel", "Mythril"
 };
 
 const int GetRarity(int rarityCount, const int qualityCap)
@@ -55,7 +55,7 @@ const Item Item::GetWeapon(int quality, int level)
 	i.spriteCellY = 1 + (rand() % ITEM::MAX_CELL_Y);
 
 	level += 1;
-	i.name = eqQuality.at(quality) + weaponNames[level];
+	i.name = eqQuality.at(quality) + weaponNames[level] + " sword";
 	i.durValue = (level * 2) + rand() % (1 + quality * 3);
 	i.keyValue = level + rand() % (1 + quality * 2);
 
@@ -103,7 +103,7 @@ const Item Item::GetRandomHealing()
 	const int QUALITY_LEVELS = 7;
 	std::string qualityNames[QUALITY_LEVELS]
 	{
-		"Ugly ", "Curious ", "Smelly ", "Absurd ", "Fascinating ", "Curious ", "Enticing "
+		"Ugly ", "Curious ", "Smelly ", "Absurd ", "Bubbling ", "Curious ", "Enticing "
 	};
 
 	const int SIZE_NAMES = 3;

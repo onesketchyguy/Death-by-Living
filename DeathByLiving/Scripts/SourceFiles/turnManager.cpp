@@ -1,4 +1,5 @@
 #include "../turnManager.h"
+#include "../tools/layerManager.h"
 
 TurnManager::TurnManager()
 {
@@ -144,7 +145,7 @@ void TurnManager::Update(olc::PixelGameEngine* pge, float elapsedTime)
 		{
 			c.HandleTurn(pge, elapsedTime);
 
-			if (isPlayer) 
+			if (isPlayer && c.inv.GetHolding() == false)
 			{
 				// Handle end turn early
 				if (pge->GetKey(olc::SPACE).bReleased) CycleTurn();
@@ -172,10 +173,16 @@ void TurnManager::Update(olc::PixelGameEngine* pge, float elapsedTime)
 			}
 		}
 
+		pge->SetDrawTarget(LayerManager::GetLayer(LAYER_MASK::CHARACTER));
+		pge->Clear(olc::BLANK);
 		c.Draw(pge, elapsedTime);
+		pge->SetDrawTarget(nullptr);
 
 		if (isPlayer) // Draw player specific UI stuff
 		{
+			pge->SetDrawTarget(LayerManager::GetLayer(LAYER_MASK::UI));
+			pge->Clear(olc::BLANK);
+
 			c.health.Draw(pge, pge->ScreenWidth() >> 1, 0, elapsedTime);
 
 			if (isCurrentTurn)
@@ -195,6 +202,8 @@ void TurnManager::Update(olc::PixelGameEngine* pge, float elapsedTime)
 
 				c.inv.Draw(pge);
 			}
+
+			pge->SetDrawTarget(nullptr);
 		}
 	}
 }

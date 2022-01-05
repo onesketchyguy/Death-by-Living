@@ -2,7 +2,6 @@
 #include <iostream>
 
 AudioSystem* AudioSystem::instance = nullptr;
-#define NO_AUDIO
 
 #ifndef NO_AUDIO
 #include <unordered_map>
