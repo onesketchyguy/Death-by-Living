@@ -39,8 +39,8 @@ private:
 	Item* output = nullptr;
 
 	void DrawHoldingItem(olc::PixelGameEngine* pge);
-
 	void DrawSlot(olc::vi2d pos, Item& item, olc::PixelGameEngine* pge, std::string& tooltip);
+	void HandleDropItem(olc::PixelGameEngine* pge);
 
 public:
 	int GetEmptySlot();
@@ -65,7 +65,7 @@ public:
 	}
 
 	void Draw(olc::PixelGameEngine* pge);
-	void Initialize(olc::PixelGameEngine* pge, olc::Renderable* inventoryUI);
+	void Initialize(olc::PixelGameEngine* pge, olc::Renderable* inventoryUI, bool drawing = false, int x = 0, int y = 0);
 
 	~Inventory() = default;
 	Inventory() = default;

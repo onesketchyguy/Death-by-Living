@@ -2,10 +2,10 @@
 #ifndef CHARACTER_SYSTEM_H
 #define CHARACTER_SYSTEM_H
 
-#include "items.h"
 #include "healthSystem.h"
 #include "../lib/olcPixelGameEngine.h"
 #include "../lib/json.hpp"
+#include "inventorySystem.h"
 
 // for convenience
 using json = nlohmann::json;
@@ -126,9 +126,10 @@ private: // Action stuff
 	const int MOVE_COST = 1;
 
 	int maxTokens = 3;
+	int bonusTokens = 0;
 
 public: // Map stuff
-	olc::vi2d mapSize{ 22, 15 };
+	olc::vi2d mapSize{ 21, 14 };
 
 private: // Animation stuff
 	float elapsedTime = 0;
@@ -176,245 +177,24 @@ public: // Character stuff
 	Inventory inv;
 	HealthContainer health{ 10 };
 
-	const int& GetMaxTokens() { return maxTokens; }
+	const void RewardBonusToken(const int& bonus) { bonusTokens += bonus; };
+	const int& GetMaxTokens() { return maxTokens + bonusTokens; }
 	const void SetMaxTokens(int m) { maxTokens = m; }
 	int actionTokens = 0;
 
-	olc::vi2d GetScreenPos() { return olc::vi2d{ pos.x * drawScaleX, pos.y * drawScaleY }; }
+	olc::vi2d GetScreenPos();
+	olc::vi2d GetScreenPos(int x, int y);
 
-	olc::vi2d GetScreenPos(int x, int y) { return olc::vi2d{ x * drawScaleX, y * drawScaleY }; }
+	void DealDamage(int damage);
+	void StartTurn();
+	void HandleTurn(olc::PixelGameEngine* pge, float elapsedTime);
+	void EndTurn();
+	void MoveDir(int xDir, int yDir);
+	void Draw(olc::PixelGameEngine* pge, float deltaTime);
+	void SetSpriteIndex(int x, int y);
+	void GenerateFromTemplate(const CharacterTemplate& _template);
 
-	void DealDamage(int damage)
-	{
-		if (inv.GetArmor().name != Item::NULL_ITEM.name)
-		{
-			if (inv.GetArmor().durValue > 0)
-			{
-				damage -= inv.GetArmor().keyValue;
-				inv.GetArmor().durValue -= 1;
-
-				if (damage < 0) damage = 0;
-			}
-
-			if (inv.GetArmor().durValue <= 0)
-			{
-				inv.GetArmor().name = Item::NULL_ITEM.name;
-				std::cout << "ARMOR BROKE!" << std::endl;
-			}
-		}
-
-		if (damage > 0) 
-		{
-			health.ModifyValue(-damage);
-			//AudioSystem::GetInstance()->PlayClip("Data/Hit_Hurt.wav");
-		}
-	}
-
-	void StartTurn() 
-	{
-		actionTokens = maxTokens;
-		aiThinking = AI_THINK_TIME;
-	}
-
-	void HandleTurn(olc::PixelGameEngine* pge, float elapsedTime)
-	{
-		if (name == "Player") 
-		{
-			int moveX = 0;
-			int moveY = 0;
-
-			if (pge->GetKey(olc::Key::LEFT).bPressed) moveX = -1;
-			if (pge->GetKey(olc::Key::RIGHT).bPressed) moveX = 1;
-			if (pge->GetKey(olc::Key::UP).bPressed)	moveY = -1;
-			if (pge->GetKey(olc::Key::DOWN).bPressed) moveY = 1;
-
-			if (moveX != 0 || moveY != 0) MoveDir(moveX, moveY);
-
-			if (inv.GetUsedItem() != nullptr)
-			{
-				if (actionTokens >= DRINK_POTION_COST)
-				{
-					health.ModifyValue(inv.GetUsedItem()->keyValue);
-					inv.GetUsedItem()->durValue--;
-
-					actionTokens -= DRINK_POTION_COST;
-				}
-
-				inv.ClearUseItem();
-			}
-		}
-		else // Handle AI Stuff
-		{
-			// FIXME: Implement AI
-			if (aiThinking <= 0.0f)
-			{
-				thinkingTime = 0;
-				aiThinking = AI_THINK_TIME + ((rand() % 100)/100.0f);
-				// FIXME: use character.moveRand
-
-				if (canMoveDiagonally) 
-				{
-					int xDir = rand() % 100 > 50 ? 1 : -1;
-					int yDir = rand() % 100 > 50 ? 1 : -1;
-					
-					MoveDir(xDir, yDir);
-				}
-				else 
-				{
-					int ran = rand() % 200;
-
-					int xDir = ran < 100 ? (ran < 50 ? 1 : -1) : 0;
-					int yDir = ran > 100 ? (ran > 150 ? 1 : -1) : 0;
-
-					MoveDir(xDir, yDir);
-				}				
-			}
-			else
-			{
-				aiThinking -= elapsedTime;
-
-				std::string thinkingImage = "";
-				for (int i = 0; i < aiThinkingChar; i++) thinkingImage += '.';
-
-				if (thinkingTime >= THINK_CHAR_INTERVAL)
-				{
-					if (aiThinkingChar > 2) aiThinkingChar = 0;
-					else aiThinkingChar++;
-
-					thinkingTime = 0;
-				}
-				else thinkingTime += elapsedTime;
-
-				pge->DrawStringDecal(GetScreenPos() + olc::vi2d{ drawScaleX / 3, -2 }, thinkingImage, olc::WHITE, olc::vf2d{1.0f,1.0f} * 0.35f);
-			}
-		}
-	}
-
-	void EndTurn() { if (name == "Player") health.ModifyValue(-1, false); }
-
-	void MoveDir(int xDir, int yDir)
-	{
-		if (actionTokens > 0) 
-		{
-			if (pos.x + xDir >= mapSize.x || pos.x + xDir < 0 || 
-				pos.y + yDir >= mapSize.y || pos.y + yDir < 0 ||
-				(xDir == 0 && yDir == 0)) return;
-
-			actionTokens -= MOVE_COST;
-
-			pos.x += xDir;
-			pos.y += yDir;
-
-			//AudioSystem::GetInstance()->PlayClip("Data/Move.wav");
-		}
-	}
-
-	void Draw(olc::PixelGameEngine* pge, float deltaTime) 
-	{
-		if (name == "Player") 
-		{			
-			health.Draw(pge, pge->ScreenWidth() >> 1, 0, deltaTime);
-
-			if (pge->GetKey(olc::Key::CTRL).bHeld && pge->GetKey(olc::Key::I).bPressed) inv.AddItem(Item::GetRandomItem());
-			else if (pge->GetKey(olc::Key::I).bPressed) inv.SetDrawing(pge, !inv.GetDrawing());
-
-			/*if (pge->GetKey(olc::Key::CTRL).bHeld && pge->GetKey(olc::Key::NP_SUB).bPressed) DealDamage(1);
-			if (pge->GetKey(olc::Key::CTRL).bHeld && pge->GetKey(olc::Key::NP_ADD).bPressed) health.ModifyValue(1);*/
-		}
-
-		const float RIGHT = static_cast<float>(drawScaleX);
-		const float BOTTOM = static_cast<float>(drawScaleY);
-		const float TOP = animateAmount * sin(elapsedTime);
-
-		elapsedTime += animationSpeed * deltaTime;
-		if (elapsedTime >= TAU) elapsedTime = 0.0f;
-
-		olc::vf2d* positions = new olc::vf2d[4]{
-			GetScreenPos() + olc::vf2d{ 0, TOP },
-			GetScreenPos() + olc::vf2d{ 0, BOTTOM },
-			GetScreenPos() + olc::vf2d{ RIGHT, BOTTOM },
-			GetScreenPos() + olc::vf2d{ RIGHT, TOP },
-		};
-
-		if (health.Empty())
-		{			
-			if (deathAnimTime > 0.0f)
-			{
-				deathAnimTime -= deathAnimSpeed * deltaTime;
-			}
-			else 
-			{
-				deathAnimTime = 0.0f;
-				delete[] positions;
-				return;
-			}
-
-			float animEval = 1 - (deathAnimTime / DEATH_ANIM_LENGTH);
-
-			float topRight = (animateAmount * sin(elapsedTime)) + BOTTOM * animEval;
-			float topLeft = (animateAmount * cos(elapsedTime)) + BOTTOM * animEval * 0.8f;
-			positions[0] = GetScreenPos() + olc::vf2d{ 0, topRight };
-			positions[3] = GetScreenPos() + olc::vf2d{ RIGHT, topLeft };
-		}
-		else 
-		{
-			deathAnimTime = DEATH_ANIM_LENGTH;
-		}
-
-		pge->DrawPartialWarpedDecal(spriteSheet->Decal(), positions, olc::vi2d{ cellX * FRAME_SIZE, cellY * FRAME_SIZE }, 
-			olc::vi2d{ FRAME_SIZE, FRAME_SIZE }, (actionTokens > 0 ? olc::WHITE : olc::GREY));
-
-		delete[] positions;
-	}
-
-	void SetSpriteIndex(int x, int y)
-	{
-		cellX = x; 
-		cellY = y;
-	}
-
-	void GenerateFromTemplate(const CharacterTemplate& _template)
-	{
-		this->SetSpriteIndex(_template.hSprCell, _template.vSprCell);
-		this->SetMaxTokens(_template.actionPoints);
-		this->health.SetValue(_template.hitPoints);
-		this->name = _template.name;
-		this->canMoveDiagonally = _template.diagonalMovement;
-		this->canOverlap = _template.canOverlap;
-		this->moveRandom = _template.moveRandom;
-		this->summonsCharacter = _template.summons;
-		this->summonInterval = _template.summonInterval;
-		this->respawnTime = _template.respawnTime;
-
-		if (_template.randArmor) this->inv.AddItem(Item::GetRandomArmor());
-		if (_template.randWeapon) this->inv.AddItem(Item::GetRandomWeapon());
-	}
-
-	// FIXME: Deprecate and remove this
-	Character(olc::Renderable* spriteSheet) { this->spriteSheet = spriteSheet; }
-	Character(olc::Renderable* spriteSheet, const CharacterTemplate& _template) 
-	{ 
-		this->spriteSheet = spriteSheet; 
-		GenerateFromTemplate(_template);
-	}
+	Character(olc::Renderable* spriteSheet, const CharacterTemplate& _template, int x = 0, int y = 0);
 };
-
-// FIXME: Deprecate and remove this
-const static void GetCharacterFromTemplate(Character* c, const CharacterTemplate& _template)
-{
-	c->SetSpriteIndex(_template.hSprCell, _template.vSprCell);
-	c->SetMaxTokens(_template.actionPoints);
-	c->health.SetValue(_template.hitPoints);
-	c->name = _template.name;
-	c->canMoveDiagonally = _template.diagonalMovement;
-	c->canOverlap = _template.canOverlap;
-	c->moveRandom = _template.moveRandom;
-	c->summonsCharacter = _template.summons;
-	c->summonInterval = _template.summonInterval;
-	c->respawnTime = _template.respawnTime;
-
-	if (_template.randArmor) c->inv.AddItem(Item::GetRandomArmor());
-	if (_template.randWeapon) c->inv.AddItem(Item::GetRandomWeapon());
-}
 
 #endif

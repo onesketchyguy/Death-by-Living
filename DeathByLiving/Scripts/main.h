@@ -6,14 +6,12 @@
 #include "healthSystem.h"
 #include "characterSystem.h"
 #include "turnManager.h"
+#include "utility.h"
 
 class Game : public olc::PixelGameEngine
 {
 private: // Global variables
-	TurnManager turnManager;
-
-	olc::Renderable* characterSheet = nullptr;
-	olc::Renderable* uiSheet = nullptr;	
+	TurnManager* turnManager;
 
 public:
 	Game()
@@ -24,46 +22,26 @@ public:
 
 	~Game() 
 	{
-		delete characterSheet;
-		delete uiSheet;
-		//AudioSystem::DestroyInstance();
+		delete turnManager;
+		AudioSystem::DestroyInstance();
 	}
 
 public:
 	bool OnUserCreate() override
 	{
 		// Called once at the start, so create things here
-		srand(time(0));
+		srand(static_cast<unsigned int>(time(0)));
 
-		//AudioSystem::CreateInstance();
+		AudioSystem::CreateInstance();
+		AudioSystem::GetInstance()->SetSoundTrack(util::GetCWD("/Data/SFX/OST.wav").c_str());
 
-		uiSheet = new olc::Renderable();
-		uiSheet->Load(util::GetCWD("Data/ui.png"));
-
-		characterSheet = new olc::Renderable();
-		characterSheet->Load(util::GetCWD("Data/characterSheet.png"));
-		
+		olc::vi2d mapSize{ 21, 14 };
 		std::vector<CharacterTemplate> cTemplates;
-		CharacterTemplate::LoadJsonData(cTemplates);
+		CharacterTemplate::LoadJsonData(cTemplates, util::GetCWD("/Data/characterTemplates.json").c_str());
 
-		for (auto& temp : cTemplates)
-		{
-			Character* c = new Character(characterSheet, temp);
-
-			if (c->name == "Player")
-			{
-				c->inv.Initialize(this, uiSheet);
-				c->inv.SetDrawing(this, true);
-				c->inv.SetPosition(ScreenWidth(), ScreenHeight());
-			}
-
-			c->pos = { rand() % c->mapSize.x, rand() % c->mapSize.y };
-
-			turnManager.AddCharacter(c);
-		}
-
-		turnManager.SetTurnOrder();
-		turnManager.SetUISheet(uiSheet);
+		turnManager = new TurnManager();
+		for (int i = 0; i < cTemplates.size(); i++) turnManager->AddCharacter(this, cTemplates.at(i), rand() % mapSize.x, rand() % mapSize.y);
+		turnManager->SetTurnOrder();
 
 		return true;
 	}
@@ -72,11 +50,13 @@ public:
 	{
 		Clear(olc::BLANK);
 
+		AudioSystem::GetInstance()->PlaySoundTrack(fElapsedTime);
+
 		// FIXME: Draw world
 
 		// Draw characters/UI
-		turnManager.Update(this, fElapsedTime);
+		turnManager->Update(this, fElapsedTime);
 
-		return true;
+		return !(GetKey(olc::ESCAPE).bReleased);
 	}
 };

@@ -9,7 +9,7 @@ void Inventory::DrawHoldingItem(olc::PixelGameEngine* pge)
 
 	pge->DrawPartialDecal(pos, DRAW_SIZE, inventoryUI->Decal(),
 		olc::vi2d{ FRAME_SIZE * holdingItem.spriteCellX, FRAME_SIZE * holdingItem.spriteCellY },
-		olc::vi2d{ FRAME_SIZE, FRAME_SIZE });
+		olc::vi2d{ FRAME_SIZE, FRAME_SIZE }, holdingItem.GetColor());
 }
 
 void Inventory::DrawSlot(olc::vi2d pos, Item& item, olc::PixelGameEngine* pge, std::string& tooltip)
@@ -35,36 +35,10 @@ void Inventory::DrawSlot(olc::vi2d pos, Item& item, olc::PixelGameEngine* pge, s
 
 	if (item.name != Item::NULL_ITEM.name)
 	{
-		std::string itemInfo;
-		olc::Pixel col = olc::WHITE;
+		std::string itemInfo = item.GetInfo();
+		olc::Pixel col = item.GetColor();
 
-		if (item.type == ARMOR_TYPE)
-		{
-			itemInfo = item.name + "\n" +
-				std::to_string(item.keyValue) + "def\n" +
-				std::to_string(item.durValue) + "dur\n";
-		}
-
-		if (item.type == WEAPON_TYPE)
-		{
-			itemInfo = item.name + "\n" +
-				std::to_string(item.keyValue) + "dam\n" +
-				std::to_string(item.durValue) + "dur\n";
-		}
-
-		if (item.type == HEALING_TYPE)
-		{
-			itemInfo = item.name + "\n" +
-				//std::to_string(item.keyValue) + "healing\n" + // Let's hide this from the user
-				std::to_string(item.durValue) + "uses\n";
-
-			if (mouseOver && pge->GetMouse(1).bReleased) output = &item;
-
-			if (item.name.find("blue") != std::string::npos) col = olc::Pixel{ 200, 200, 255};
-			else if (item.name.find("red") != std::string::npos) col = olc::Pixel{ 255, 200, 200 };
-			else if (item.name.find("green") != std::string::npos) col = olc::Pixel{ 200, 255, 200 };
-			else if (item.name.find("purple") != std::string::npos) col = olc::Pixel{ 255, 200, 255 };
-		}
+		if (pge->GetMouse(1).bReleased && mouseOver && item.type == HEALING_TYPE) output = &item;
 
 		pge->DrawPartialDecal(pos, DRAW_SIZE, inventoryUI->Decal(),
 			olc::vi2d{ FRAME_SIZE * item.spriteCellX, FRAME_SIZE * item.spriteCellY },
@@ -114,6 +88,59 @@ void Inventory::DrawSlot(olc::vi2d pos, Item& item, olc::PixelGameEngine* pge, s
 		}
 	}
 }
+
+void Inventory::HandleDropItem(olc::PixelGameEngine* pge)
+{
+	olc::vf2d screenMid = olc::vf2d{ static_cast<float>(pge->ScreenWidth() >> 1), static_cast<float>(pge->ScreenHeight() >> 1) };
+
+	// Draw item
+	std::string itemInfo = holdingItem.GetInfo();
+
+	olc::vf2d drawPos = screenMid + olc::vf2d{ 10.0f, -10.0f };
+	olc::vf2d itemDrawPos = screenMid + olc::vf2d{ -10.0f, -10.0f };
+
+	// Adjust the position to keep the text on screen
+	int delta = static_cast<int>((drawPos.x + (util::GetStringWidth(itemInfo) * 4)) - pge->ScreenWidth());
+	if (delta > 0) drawPos.x -= delta;
+
+	delta = static_cast<int>((drawPos.y + (util::GetStringHeight(itemInfo) * 4)) - pge->ScreenHeight());
+	if (delta > 0) drawPos.y -= delta;
+
+	pge->DrawStringDecal(olc::vf2d{ -0.05f, 0.05f } + drawPos, itemInfo, olc::BLACK, olc::vf2d{ 0.5f, 0.5f });
+	pge->DrawStringDecal(drawPos, itemInfo, olc::WHITE, olc::vf2d{ 0.5f, 0.5f });
+
+	pge->DrawPartialDecal(itemDrawPos, DRAW_SIZE, inventoryUI->Decal(),
+		olc::vi2d{ FRAME_SIZE * holdingItem.spriteCellX, FRAME_SIZE * holdingItem.spriteCellY },
+		olc::vi2d{ FRAME_SIZE, FRAME_SIZE }, holdingItem.GetColor());
+
+	// Draw buttons
+	Button dropButton{ screenMid.x, screenMid.y + 10.0f, 50, 15, 1.0f, "Drop" };
+	Button cancelButton{ screenMid.x, screenMid.y + 30.0f, 50, 15, 1.0f, "Cancel" };
+	dropButton.Draw(pge, olc::VERY_DARK_GREY, olc::DARK_GREY, olc::WHITE, olc::WHITE);
+	cancelButton.Draw(pge, olc::VERY_DARK_GREY, olc::DARK_GREY, olc::WHITE, olc::WHITE);
+
+	if (pge->GetMouse(0).bReleased)
+	{
+		if (cancelButton.IsColliding(pge->GetMouseX(), pge->GetMouseY()))
+		{
+			AddItem(holdingItem);
+			holdingItem = Item::NULL_ITEM;
+
+			droppingItem = false;
+		}
+		else if (dropButton.IsColliding(pge->GetMouseX(), pge->GetMouseY()))
+		{
+			holdingItem = Item::NULL_ITEM;
+
+			//AudioSystem::GetInstance()->PlayClip("Data/Drop_Item.wav");
+
+			droppingItem = false;
+		}
+	}
+
+	pge->SetDrawTarget(nullptr);
+}
+
 
 // Public functions
 int Inventory::GetEmptySlot()
@@ -189,31 +216,7 @@ void Inventory::Draw(olc::PixelGameEngine* pge)
 
 	if (droppingItem)
 	{
-		Button dropButton{ static_cast<float>(pge->ScreenWidth() >> 1), static_cast<float>((pge->ScreenHeight() >> 1) + 10), 50, 15, 1.0f, "Drop" };
-		Button cancelButton{ static_cast<float>(pge->ScreenWidth() >> 1), static_cast<float>((pge->ScreenHeight() >> 1) - 10), 50, 15, 1.0f, "Cancel" };
-		dropButton.Draw(pge, olc::VERY_DARK_GREY, olc::DARK_GREY, olc::WHITE, olc::WHITE);
-		cancelButton.Draw(pge, olc::VERY_DARK_GREY, olc::DARK_GREY, olc::WHITE, olc::WHITE);
-
-		if (pge->GetMouse(0).bReleased)
-		{
-			if (cancelButton.IsColliding(pge->GetMouseX(), pge->GetMouseY()))
-			{
-				AddItem(holdingItem);
-				holdingItem = Item::NULL_ITEM;
-
-				droppingItem = false;
-			}
-			else if (dropButton.IsColliding(pge->GetMouseX(), pge->GetMouseY()))
-			{
-				holdingItem = Item::NULL_ITEM;
-
-				//AudioSystem::GetInstance()->PlayClip("Data/Drop_Item.wav");
-
-				droppingItem = false;
-			}
-		}
-
-		pge->SetDrawTarget(nullptr);
+		HandleDropItem(pge);
 		return;
 	}
 
@@ -283,10 +286,13 @@ void Inventory::Draw(olc::PixelGameEngine* pge)
 	pge->SetDrawTarget(nullptr);
 }
 
-void Inventory::Initialize(olc::PixelGameEngine* pge, olc::Renderable* inventoryUI)
+void Inventory::Initialize(olc::PixelGameEngine* pge, olc::Renderable* inventoryUI, bool drawing, int x, int y)
 {
 	this->inventoryUI = inventoryUI;
 	for (size_t i = 0; i < HORIZONTAL_CELLS * VERTICAL_CELLS; i++) items.push_back(Item::NULL_ITEM);
 
 	drawLayer = pge->CreateLayer();
+
+	SetPosition(x, y);
+	SetDrawing(pge, drawing);
 }

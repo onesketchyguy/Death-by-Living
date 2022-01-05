@@ -5,6 +5,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include "../lib/olcPixelGameEngine.h"
 
 #define ARMOR_ITEM_TYPE "Armor";
 #define WEAPON_ITEM_TYPE "Weapon";
@@ -20,6 +21,13 @@ namespace ITEM
 
 struct Item
 {
+private:
+	// WARNING! THESE ARE NOT SAVED!
+	uint8_t colR = 255;
+	uint8_t colG = 255;
+	uint8_t colB = 255;
+	// *****************************
+public:
 	// The name of this item
 	std::string name = "Generic Item";
 	// The key value for this item. IE damage, healing, etc.
@@ -28,6 +36,8 @@ struct Item
 	int durValue = 1;
 	/// The type of item this is
 	std::string type = NO_USE_ITEM_TYPE;
+	// We may decide to hide some information from the user
+	bool researched = false;
 
 	int spriteCellY = 0;
 	int spriteCellX = 0;
@@ -45,38 +55,18 @@ struct Item
 
 	std::string ToString() { return name + " " + std::to_string(keyValue) + " " + std::to_string(durValue) + " " + type; }
 
+	const void SetColor(uint8_t r, uint8_t g, uint8_t b) { colR = r; colG = g; colB = b; }
+	const olc::Pixel GetColor() { return olc::Pixel{ colR, colG, colB, 255 }; }
+	const std::string GetInfo();
+
 	const static void WriteToJson(std::vector<Item>& items, std::string fileName = "Data/items.json");
 	const static void LoadJsonData(std::vector<Item>& items, std::string fileName = "Data/items.json");
 	const static Item GetWeapon(int quality, int level);
 	const static Item GetRandomWeapon(int qualityCap = 100);
+	const static Item GetArmor(int quality, int level);
 	const static Item GetRandomArmor(int qualityCap = 100);
 	const static Item GetRandomHealing();
 	const static Item GetRandomItem(int qualityCap = 100);
 };
-
-//void RunItemsTestCase() 
-//{
-//	std::cout << "<------ Starting test case" << std::endl;
-//
-//	std::cout << "- Creating and loading items list" << std::endl;
-//	std::vector<Item> items;
-//	Item::LoadJsonData(items);
-//
-//	std::cout << "- Generating new item" << std::endl;
-//	const char* itemType = WEAPON_ITEM_TYPE;
-//	Item i = Item::GetRandomItem();
-//
-//	std::cout << "- Saving new item to list" << std::endl;
-//	items.push_back(i);
-//	Item::WriteToJson(items);
-//
-//	std::cout << "- Printing items" << std::endl;
-//	for (auto& item : items)
-//	{
-//		std::cout << item.ToString() << std::endl;
-//	}
-//
-//	std::cout << "<------ Ended test case" << std::endl;
-//}
 
 #endif
