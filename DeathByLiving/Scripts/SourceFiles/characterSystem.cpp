@@ -34,7 +34,7 @@ void Character::DealDamage(int damage)
 
 void Character::StartTurn()
 {
-	actionTokens = maxTokens;
+	actionTokens = GetMaxTokens();
 	aiThinking = AI_THINK_TIME;
 }
 
@@ -114,7 +114,15 @@ void Character::HandleTurn(olc::PixelGameEngine* pge, float elapsedTime)
 	}
 }
 
-void Character::EndTurn() { if (name == "Player") health.ModifyValue(-1, false); }
+void Character::EndTurn() 
+{ 
+	if (name == "Player") health.ModifyValue(-1, false);
+	bonusTokens = 0; // Reset bonus tokens at end of turn
+
+	// FIXME: We probably won't keep this.
+	RewardBonusToken(actionTokens);
+	actionTokens = 0;
+}
 
 void Character::MoveDir(int xDir, int yDir)
 {

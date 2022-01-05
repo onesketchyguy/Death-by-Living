@@ -126,6 +126,7 @@ private: // Action stuff
 	const int MOVE_COST = 1;
 
 	int maxTokens = 3;
+	int bonusTokens = 0;
 
 public: // Map stuff
 	olc::vi2d mapSize{ 21, 14 };
@@ -176,7 +177,8 @@ public: // Character stuff
 	Inventory inv;
 	HealthContainer health{ 10 };
 
-	const int& GetMaxTokens() { return maxTokens; }
+	const void RewardBonusToken(const int& bonus) { bonusTokens += bonus; };
+	const int& GetMaxTokens() { return maxTokens + bonusTokens; }
 	const void SetMaxTokens(int m) { maxTokens = m; }
 	int actionTokens = 0;
 
