@@ -38,10 +38,10 @@ public:
 		//AudioSystem::CreateInstance();
 
 		uiSheet = new olc::Renderable();
-		uiSheet->Load("Data/ui.png");
+		uiSheet->Load(util::GetCWD("Data/ui.png"));
 
 		characterSheet = new olc::Renderable();
-		characterSheet->Load("Data/characterSheet.png");
+		characterSheet->Load(util::GetCWD("Data/characterSheet.png"));
 		
 		std::vector<CharacterTemplate> cTemplates;
 		CharacterTemplate::LoadJsonData(cTemplates);
