@@ -72,7 +72,13 @@ namespace util
         char buff[FILENAME_MAX];
         GetCurrentDir(buff, FILENAME_MAX);
         std::string _dir(buff);
-        _dir += _content;
+
+        if (_content != nullptr && _content[0] != '\0')
+        {
+            if (_content[0] != '/') _dir += '/';
+            _dir += _content;
+        }
+
         return _dir.c_str();
     }
 }

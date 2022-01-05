@@ -59,6 +59,8 @@ void Character::HandleTurn(olc::PixelGameEngine* pge, float elapsedTime)
 				health.ModifyValue(inv.GetUsedItem()->keyValue);
 				inv.GetUsedItem()->durValue--;
 
+				if (inv.GetUsedItem()->durValue > 0) inv.GetUsedItem()->researched = true;
+
 				actionTokens -= DRINK_POTION_COST;
 			}
 

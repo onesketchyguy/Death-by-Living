@@ -39,8 +39,8 @@ private:
 	Item* output = nullptr;
 
 	void DrawHoldingItem(olc::PixelGameEngine* pge);
-
 	void DrawSlot(olc::vi2d pos, Item& item, olc::PixelGameEngine* pge, std::string& tooltip);
+	void HandleDropItem(olc::PixelGameEngine* pge);
 
 public:
 	int GetEmptySlot();

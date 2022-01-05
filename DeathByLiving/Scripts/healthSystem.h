@@ -16,6 +16,8 @@ private:
 	float showTime = 0.0f;
 
 public:
+	const int GetValue() { return health; }
+
 	void ModifyValue(int mod, bool notify = true) 
 	{
 		if (notify) 

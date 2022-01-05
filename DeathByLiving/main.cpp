@@ -32,6 +32,9 @@ int main()
 
 		AUDIO_ENABLED = settings.soundEnabled;
 
+		std::cout << "WINDOW WIDTH : " << std::to_string(width) << std::endl;
+		std::cout << "WINDOW HEIGHT: " << std::to_string(height) << std::endl;
+		std::cout << "PIXEL SIZE   : " << std::to_string(settings.pixelSize) << std::endl;
 		std::cout << "AUDIO ENABLED: " << std::to_string(AUDIO_ENABLED) << std::endl;
 
 		Game application;
@@ -44,8 +47,6 @@ int main()
 		system("pause");
 		return 3;
 	}
-
-	system("pause");
 
 	return 0;
 }

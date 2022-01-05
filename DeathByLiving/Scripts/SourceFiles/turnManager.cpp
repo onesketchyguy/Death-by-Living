@@ -127,7 +127,7 @@ void TurnManager::Update(olc::PixelGameEngine* pge, float elapsedTime)
 			const int DRAW_SIZE = 10;
 
 			// Draw available actionTokens
-			for (size_t i = 0; i < current.GetMaxTokens(); i++)
+			for (int i = 0; i < current.GetMaxTokens(); i++)
 			{
 				float x = static_cast<float>(DRAW_SIZE * (i % 6));
 				float y = static_cast<float>(DRAW_SIZE * (i / 6));
@@ -159,9 +159,29 @@ void TurnManager::Update(olc::PixelGameEngine* pge, float elapsedTime)
 			}
 
 			current.inv.Draw(pge);
-			current.health.Draw(pge, pge->ScreenWidth() >> 1, 0, elapsedTime);
 		}
+		//else // DRAW ENEMY HEALTH BAR
+		//{
+		//	const int DRAW_SIZE = 5;
+
+		//	for (int i = 0; i < current.health.GetValue(); i++)
+		//	{
+		//		float x = static_cast<float>(DRAW_SIZE * (i % 6));
+		//		float y = static_cast<float>(DRAW_SIZE * (i / 6));
+		//		bool isFilledToken = current.health.GetValue() > i;
+
+		//		pge->DrawPartialDecal(current.GetScreenPos() + olc::vf2d{ x, - 10 + y },
+		//			olc::vi2d{ DRAW_SIZE, DRAW_SIZE }, uiSheet->Decal(),
+		//			olc::vi2d{ 16 * 4, 0 }, olc::vi2d{ 16,16 }, (isFilledToken ? olc::WHITE : olc::VERY_DARK_GREY));
+		//	}
+		//}
 	}
 
-	for (auto& c : characters) c.Draw(pge, elapsedTime);
+	for (auto& c : characters) 
+	{
+		c.Draw(pge, elapsedTime);
+
+		if (c.name == "Player") 
+			c.health.Draw(pge, pge->ScreenWidth() >> 1, 0, elapsedTime);
+	}
 }
